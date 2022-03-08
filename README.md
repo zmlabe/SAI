@@ -1,5 +1,5 @@
 # SAI
-Using explainable to identify regional climate signals to stratospheric aerosol injection
+Using explainable to identify regional climate signals in response to stratospheric aerosol injection
 
 ###### Under construction... ```[Python 3.7]```
 
