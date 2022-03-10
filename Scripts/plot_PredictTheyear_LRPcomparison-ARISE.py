@@ -25,10 +25,12 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
 years = np.arange(2035,2069+1,1)
 testingn = 2
+variq = 'TREFHT'
+directoryfigure = '/Users/zlabe/Desktop/sAI/LRP/%s/' % variq
 
 ###############################################################################
 ### Read in LRP after training on ARISE
-data = Dataset(directorydata + 'LRPMap_Z_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_Z_Testing_ARISE_%s.nc' % variq)
 lat = data.variables['lat'][:]
 lon = data.variables['lon'][:]                             
 lrp_arise_zq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
@@ -37,11 +39,11 @@ data.close()
 ### Change longitudes
 lon = np.where(lon >180,lon-360,lon)
 
-data = Dataset(directorydata + 'LRPMap_E_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_E_Testing_ARISE_%s.nc' % variq)
 lrp_arise_eq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_IG_Testing_ARISE_%s.nc' % variq)
 lrp_arise_igq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
 data.close()
 
@@ -62,7 +64,6 @@ lrp_arise_ig2 = np.nanmean(lrp_arise_ig[10:,:,:],axis=0)
 ###############################################################################
 ###############################################################################
 ### Plot subplot of observations
-directoryfigure = '/Users/zlabe/Desktop/sAI/LRP/'
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
 limit = np.arange(0,0.81,0.005)
 barlim = np.round(np.arange(0,0.81,0.1),2)
@@ -220,4 +221,4 @@ cbar1.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.4)
 
-plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-ARISE.png',dpi=300)
+plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-ARISE_%s.png' % variq,dpi=300)

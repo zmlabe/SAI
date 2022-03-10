@@ -53,8 +53,9 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ###############################################################################
 ### Data preliminaries 
 directorydata = '/Users/zlabe/Data/LENS/monthly'
-datasetsingle = ['WACCM']
-dataset_obs = 'ARISE'
+datasetsingle = ['ARISE']
+dataset_obs = 'WACCM'
+variq = 'PRECT'
 seasons = ['annual','JFM','AMJ','JAS','OND']
 seasons = ['annual']
 
@@ -95,11 +96,14 @@ for sis,singlesimulation in enumerate(datasetsingle):
         ###############################################################################
         ###############################################################################
         ### ANN preliminaries
-        variq = 'PRECT'
+        if variq == 'TREFHT':
+            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+        else:
+            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
+            
         monthlychoice = seasons[seas]
-        reg_name = 'Tropics'
+        reg_name = 'Globe'
         lat_bounds,lon_bounds = UT.regions(reg_name)
-        directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
         experiment_result = pd.DataFrame(columns=['actual iters','hiddens','cascade',
                                                   'RMSE Train','RMSE Test',
                                                   'ridge penalty','zero mean',
@@ -124,27 +128,42 @@ for sis,singlesimulation in enumerate(datasetsingle):
         ### Remove the annual mean? True to subtract it from dataset ##########
         rm_annual_mean = False ################################################
         if rm_annual_mean == True:
-            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Remove the meridional mean? True to subtract it from dataset ######
         rm_merid_mean = False #################################################
         if rm_merid_mean == True:
-            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Calculate only over land? True if land ############################
         land_only = False ######################################################
         if land_only == True:
-            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Calculate only over ocean? True if ocean ##########################
         ocean_only = False #####################################################
         if ocean_only == True:
-            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Rove the ensemble mean? True to subtract it from dataset ##########
         rm_ensemble_mean = False ###############################################
         if rm_ensemble_mean == True:
-            directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/'
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Split the data into training and testing sets? value of 1 will use all 
         ### data as training, .8 will use 80% training, 20% testing; etc.
@@ -937,11 +956,16 @@ for sis,singlesimulation in enumerate(datasetsingle):
                         savename = savename + '_EnsembleMeanRemoved' 
                         savenameModelTestTrain = savenameModelTestTrain + '_EnsembleMeanRemoved'
     
-                    # savename = savename + regSave    
-                    # model.save(dirname + savename + '.h5')
-                    # np.savez(dirname + savenameModelTestTrain + '.npz',trainModels=trainIndices,testModels=testIndices,Xtrain=Xtrain,Ytrain=Ytrain,Xtest=Xtest,Ytest=Ytest,Xmean=Xmean,Xstd=Xstd,lats=lats,lons=lons)
+                    if(reg_name=='Globe'):
+                        regSave = ''
+                    else:
+                        regSave = '_' + reg_name
     
-                    # print('saving ' + savename)
+                    savename = savename + regSave    
+                    model.save(dirname + savename + '.h5')
+                    np.savez(dirname + savenameModelTestTrain + '.npz',trainModels=trainIndices,testModels=testIndices,Xtrain=Xtrain,Ytrain=Ytrain,Xtest=Xtest,Ytest=Ytest,Xmean=Xmean,Xstd=Xstd,lats=lats,lons=lons)
+    
+                    print('saving ' + savename)
                     
                     ###############################################################
                     ### Make final plot
@@ -965,19 +989,27 @@ for sis,singlesimulation in enumerate(datasetsingle):
                         endYear = yearsall[sis].max()
                     years = np.arange(startYear,endYear+1,1)    
                     
-                    ### Stanrdardize testing 'obs'
+                    ### Standardize testing 'obs'
                     XobsS = (Xobs-Xmean)/Xstd
                     XobsS[np.isnan(XobsS)] = 0
+                    
+                    ### Standardize training
+                    XtrainS = (Xtrain-Xmean)/Xstd
+                    XtrainS[np.isnan(XtrainS)] = 0
+                    
+                    ### Standardize testing
+                    XtestS = (Xtest-Xmean)/Xstd
+                    XtestS[np.isnan(XtestS)] = 0                                                                                          
                     
                     if(annType=='class'):
                         ### Chunk by individual year
                         YpredObs = convert_fuzzyDecade_toYear(model.predict(XobsS),
                                                               startYear,
                                                               classChunk)
-                        YpredTrain = convert_fuzzyDecade_toYear(model.predict((Xtrain-Xmean)/Xstd),
+                        YpredTrain = convert_fuzzyDecade_toYear(model.predict(XtrainS),
                                                                 startYear,
                                                                 classChunk)
-                        YpredTest = convert_fuzzyDecade_toYear(model.predict((Xtest-Xmean)/Xstd),
+                        YpredTest = convert_fuzzyDecade_toYear(model.predict(XtestS),
                                                                 startYear,
                                                                 classChunk)
                         
@@ -986,277 +1018,277 @@ for sis,singlesimulation in enumerate(datasetsingle):
                                     testIndices,years,
                                     yearsObs,YpredObs)
         
-#         ##############################################################################
-#         ##############################################################################
-#         ##############################################################################
-#         ### Visualizing through LRP
-#         numLats = lats.shape[0]
-#         numLons = lons.shape[0]  
-#         numDim = 3
-#         num_of_class = len(yearsall)
+        ##############################################################################
+        ##############################################################################
+        ##############################################################################
+        ### Visualizing through LRP
+        numLats = lats.shape[0]
+        numLons = lons.shape[0]  
+        numDim = 3
+        num_of_class = len(yearsall)
         
-#         lrpallz = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
-#                                                 np.append(Ytrain,Ytest,axis=0),
-#                                                 biasBool,annType,num_of_class,
-#                                                 yearsall,lrpRule1,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
-#         meanlrpz = np.nanmean(lrpallz,axis=0)
-#         fig=plt.figure()
-#         plt.contourf(meanlrpz,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
+        lrpallz = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
+                                                np.append(Ytrain,Ytest,axis=0),
+                                                biasBool,annType,num_of_class,
+                                                yearsall,lrpRule1,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
+        meanlrpz = np.nanmean(lrpallz,axis=0)
+        fig=plt.figure()
+        plt.contourf(meanlrpz,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
         
-#         # ### For training data only
-#         # lrptrainz = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
-#         #                                         annType,num_of_class,
-#         #                                         yearsall,lrpRule1,normLRP,
-#         #                                         numLats,numLons,numDim,
-#         #                                         classChunk,startYear)
+        # ### For training data only
+        # lrptrainz = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
+        #                                         annType,num_of_class,
+        #                                         yearsall,lrpRule1,normLRP,
+        #                                         numLats,numLons,numDim,
+        #                                         classChunk,startYear)
         
-#         ### For training data only
-#         lrptestz = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
-#                                                 annType,num_of_class,
-#                                                 yearsall,lrpRule1,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
+        ### For training data only
+        lrptestz = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
+                                                annType,num_of_class,
+                                                yearsall,lrpRule1,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
         
         
-#         ### For observations data only
-#         lrpobservationsz = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
-#                                             num_of_class,yearsall,lrpRule1,
-#                                             normLRP,numLats,numLons,numDim)
+        ### For observations data only
+        lrpobservationsz = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
+                                            num_of_class,yearsall,lrpRule1,
+                                            normLRP,numLats,numLons,numDim)
   
-# ############################################################################### 
-# ############################################################################### 
-# ############################################################################### 
-# ### LRP epsilon rule
-#         lrpalle = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
-#                                                 np.append(Ytrain,Ytest,axis=0),
-#                                                 biasBool,annType,num_of_class,
-#                                                 yearsall,lrpRule2,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
-#         meanlrpe = np.nanmean(lrpalle,axis=0)
-#         fig=plt.figure()
-#         plt.contourf(meanlrpe,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
+############################################################################### 
+############################################################################### 
+############################################################################### 
+### LRP epsilon rule
+        lrpalle = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
+                                                np.append(Ytrain,Ytest,axis=0),
+                                                biasBool,annType,num_of_class,
+                                                yearsall,lrpRule2,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
+        meanlrpe = np.nanmean(lrpalle,axis=0)
+        fig=plt.figure()
+        plt.contourf(meanlrpe,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
         
-#         # ### For training data only
-#         # lrptraine = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
-#         #                                         annType,num_of_class,
-#         #                                         yearsall,lrpRule2,normLRP,
-#         #                                         numLats,numLons,numDim,
-#         #                                         classChunk,startYear)
+        # ### For training data only
+        # lrptraine = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
+        #                                         annType,num_of_class,
+        #                                         yearsall,lrpRule2,normLRP,
+        #                                         numLats,numLons,numDim,
+        #                                         classChunk,startYear)
         
-#         ### For training data only
-#         lrpteste = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
-#                                                 annType,num_of_class,
-#                                                 yearsall,lrpRule2,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
-        
-        
-#         ### For observations data only
-#         lrpobservationse = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
-#                                             num_of_class,yearsall,lrpRule2,
-#                                             normLRP,numLats,numLons,numDim)
-        
-# ############################################################################### 
-# ############################################################################### 
-# ############################################################################### 
-# ###  Integrated Gradient
-#         lrpallig = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
-#                                                 np.append(Ytrain,Ytest,axis=0),
-#                                                 biasBool,annType,num_of_class,
-#                                                 yearsall,lrpRule3,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
-#         meanlrpig = np.nanmean(lrpallig,axis=0)
-#         fig=plt.figure()
-#         plt.contourf(meanlrpig,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
-        
-#         # ### For training data only
-#         # lrptrainig = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
-#         #                                         annType,num_of_class,
-#         #                                         yearsall,lrpRule3,normLRP,
-#         #                                         numLats,numLons,numDim,
-#         #                                         classChunk,startYear)
-        
-#         ### For training data only
-#         lrptestig = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
-#                                                 annType,num_of_class,
-#                                                 yearsall,lrpRule3,normLRP,
-#                                                 numLats,numLons,numDim,
-#                                                 classChunk,startYear)
+        ### For training data only
+        lrpteste = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
+                                                annType,num_of_class,
+                                                yearsall,lrpRule2,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
         
         
-#         ### For observations data only
-#         lrpobservationsig = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
-#                                             num_of_class,yearsall,lrpRule3,
-#                                             normLRP,numLats,numLons,numDim)
+        ### For observations data only
+        lrpobservationse = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
+                                            num_of_class,yearsall,lrpRule2,
+                                            normLRP,numLats,numLons,numDim)
         
-#         ##############################################################################
-#         ##############################################################################
-#         ##############################################################################
-#         def netcdfLRPz(lats,lons,var,directory,typemodel,trainingdata):
-#             print('\n>>> Using netcdfLRP-z function!')
-            
-#             from netCDF4 import Dataset
-#             import numpy as np
-            
-#             name = 'LRPMap_Z_' + typemodel + '_' + trainingdata + '.nc'
-#             filename = directory + name
-#             ncfile = Dataset(filename,'w',format='NETCDF4')
-#             ncfile.description = 'LRP maps for using selected seed' 
-            
-#             ### Dimensions
-#             ncfile.createDimension('years',var.shape[0])
-#             ncfile.createDimension('lat',var.shape[1])
-#             ncfile.createDimension('lon',var.shape[2])
-            
-#             ### Variables
-#             years = ncfile.createVariable('years','f4',('years'))
-#             latitude = ncfile.createVariable('lat','f4',('lat'))
-#             longitude = ncfile.createVariable('lon','f4',('lon'))
-#             varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
-            
-#             ### Units
-#             varns.units = 'unitless relevance'
-#             ncfile.title = 'LRP relevance'
-#             ncfile.instituion = 'Colorado State University'
-#             ncfile.references = 'Barnes et al. [2020]'
-            
-#             ### Data
-#             years[:] = np.arange(var.shape[0])
-#             latitude[:] = lats
-#             longitude[:] = lons
-#             varns[:] = var
-            
-#             ncfile.close()
-#             print('*Completed: Created netCDF4 File!')
+############################################################################### 
+############################################################################### 
+############################################################################### 
+###  Integrated Gradient
+        lrpallig = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
+                                                np.append(Ytrain,Ytest,axis=0),
+                                                biasBool,annType,num_of_class,
+                                                yearsall,lrpRule3,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
+        meanlrpig = np.nanmean(lrpallig,axis=0)
+        fig=plt.figure()
+        plt.contourf(meanlrpig,np.arange(0,0.21,0.01),cmap=cmocean.cm.thermal)
         
-#         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-#         # netcdfLRPz(lats,lons,lrpallz,directoryoutput,'AllData',dataset)
-#         # netcdfLRPz(lats,lons,lrptrainz,directoryoutput,'Training',dataset)
-#         netcdfLRPz(lats,lons,lrptestz,directoryoutput,'Testing',dataset)
-#         netcdfLRPz(lats,lons,lrpobservationsz,directoryoutput,'Obs',dataset)
+        # ### For training data only
+        # lrptrainig = LRP.calc_LRPModel(model,XtrainS,Ytrain,biasBool,
+        #                                         annType,num_of_class,
+        #                                         yearsall,lrpRule3,normLRP,
+        #                                         numLats,numLons,numDim,
+        #                                         classChunk,startYear)
         
-#         ##############################################################################
-#         ##############################################################################
-#         ##############################################################################
-#         def netcdfLRPe(lats,lons,var,directory,typemodel,trainingdata):
-#             print('\n>>> Using netcdfLRP-e function!')
-            
-#             from netCDF4 import Dataset
-#             import numpy as np
-            
-#             name = 'LRPMap_E_' + typemodel + '_' + trainingdata + '.nc'
-#             filename = directory + name
-#             ncfile = Dataset(filename,'w',format='NETCDF4')
-#             ncfile.description = 'LRP maps for using selected seed' 
-            
-#             ### Dimensions
-#             ncfile.createDimension('years',var.shape[0])
-#             ncfile.createDimension('lat',var.shape[1])
-#             ncfile.createDimension('lon',var.shape[2])
-            
-#             ### Variables
-#             years = ncfile.createVariable('years','f4',('years'))
-#             latitude = ncfile.createVariable('lat','f4',('lat'))
-#             longitude = ncfile.createVariable('lon','f4',('lon'))
-#             varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
-            
-#             ### Units
-#             varns.units = 'unitless relevance'
-#             ncfile.title = 'LRP relevance'
-#             ncfile.instituion = 'Colorado State University'
-#             ncfile.references = 'Barnes et al. [2020]'
-            
-#             ### Data
-#             years[:] = np.arange(var.shape[0])
-#             latitude[:] = lats
-#             longitude[:] = lons
-#             varns[:] = var
-            
-#             ncfile.close()
-#             print('*Completed: Created netCDF4 File!')
+        ### For training data only
+        lrptestig = LRP.calc_LRPModel(model,XtestS,Ytest,biasBool,
+                                                annType,num_of_class,
+                                                yearsall,lrpRule3,normLRP,
+                                                numLats,numLons,numDim,
+                                                classChunk,startYear)
         
-#         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-#         # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset)
-#         # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset)
-#         netcdfLRPe(lats,lons,lrpteste,directoryoutput,'Testing',dataset)
-#         netcdfLRPe(lats,lons,lrpobservationse,directoryoutput,'Obs',dataset)
         
-#         ##############################################################################
-#         ##############################################################################
-#         ##############################################################################
-#         def netcdfLRPig(lats,lons,var,directory,typemodel,trainingdata):
-#             print('\n>>> Using netcdfLRP-e function!')
-            
-#             from netCDF4 import Dataset
-#             import numpy as np
-            
-#             name = 'LRPMap_IG_' + typemodel + '_' + trainingdata + '.nc'
-#             filename = directory + name
-#             ncfile = Dataset(filename,'w',format='NETCDF4')
-#             ncfile.description = 'LRP maps for using selected seed' 
-            
-#             ### Dimensions
-#             ncfile.createDimension('years',var.shape[0])
-#             ncfile.createDimension('lat',var.shape[1])
-#             ncfile.createDimension('lon',var.shape[2])
-            
-#             ### Variables
-#             years = ncfile.createVariable('years','f4',('years'))
-#             latitude = ncfile.createVariable('lat','f4',('lat'))
-#             longitude = ncfile.createVariable('lon','f4',('lon'))
-#             varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
-            
-#             ### Units
-#             varns.units = 'unitless relevance'
-#             ncfile.title = 'LRP relevance'
-#             ncfile.instituion = 'Colorado State University'
-#             ncfile.references = 'Barnes et al. [2020]'
-            
-#             ### Data
-#             years[:] = np.arange(var.shape[0])
-#             latitude[:] = lats
-#             longitude[:] = lons
-#             varns[:] = var
-            
-#             ncfile.close()
-#             print('*Completed: Created netCDF4 File!')
+        ### For observations data only
+        lrpobservationsig = LRP.calc_LRPObs(model,XobsS,biasBool,annType,
+                                            num_of_class,yearsall,lrpRule3,
+                                            normLRP,numLats,numLons,numDim)
         
-#         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-#         # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset)
-#         # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset)
-#         netcdfLRPig(lats,lons,lrptestig,directoryoutput,'Testing',dataset)
-#         netcdfLRPig(lats,lons,lrpobservationsig,directoryoutput,'Obs',dataset)
+        ##############################################################################
+        ##############################################################################
+        ##############################################################################
+        def netcdfLRPz(lats,lons,var,directory,typemodel,trainingdata,variq):
+            print('\n>>> Using netcdfLRP-z function!')
+            
+            from netCDF4 import Dataset
+            import numpy as np
+            
+            name = 'LRPMap_Z_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            filename = directory + name
+            ncfile = Dataset(filename,'w',format='NETCDF4')
+            ncfile.description = 'LRP maps for using selected seed' 
+            
+            ### Dimensions
+            ncfile.createDimension('years',var.shape[0])
+            ncfile.createDimension('lat',var.shape[1])
+            ncfile.createDimension('lon',var.shape[2])
+            
+            ### Variables
+            years = ncfile.createVariable('years','f4',('years'))
+            latitude = ncfile.createVariable('lat','f4',('lat'))
+            longitude = ncfile.createVariable('lon','f4',('lon'))
+            varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
+            
+            ### Units
+            varns.units = 'unitless relevance'
+            ncfile.title = 'LRP relevance'
+            ncfile.instituion = 'Colorado State University'
+            ncfile.references = 'Barnes et al. [2020]'
+            
+            ### Data
+            years[:] = np.arange(var.shape[0])
+            latitude[:] = lats
+            longitude[:] = lons
+            varns[:] = var
+            
+            ncfile.close()
+            print('*Completed: Created netCDF4 File!')
+        
+        directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+        # netcdfLRPz(lats,lons,lrpallz,directoryoutput,'AllData',dataset,variq)
+        # netcdfLRPz(lats,lons,lrptrainz,directoryoutput,'Training',dataset,variq)
+        netcdfLRPz(lats,lons,lrptestz,directoryoutput,'Testing',dataset,variq)
+        netcdfLRPz(lats,lons,lrpobservationsz,directoryoutput,'Obs',dataset,variq)
+        
+        ##############################################################################
+        ##############################################################################
+        ##############################################################################
+        def netcdfLRPe(lats,lons,var,directory,typemodel,trainingdata,variq):
+            print('\n>>> Using netcdfLRP-e function!')
+            
+            from netCDF4 import Dataset
+            import numpy as np
+            
+            name = 'LRPMap_E_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            filename = directory + name
+            ncfile = Dataset(filename,'w',format='NETCDF4')
+            ncfile.description = 'LRP maps for using selected seed' 
+            
+            ### Dimensions
+            ncfile.createDimension('years',var.shape[0])
+            ncfile.createDimension('lat',var.shape[1])
+            ncfile.createDimension('lon',var.shape[2])
+            
+            ### Variables
+            years = ncfile.createVariable('years','f4',('years'))
+            latitude = ncfile.createVariable('lat','f4',('lat'))
+            longitude = ncfile.createVariable('lon','f4',('lon'))
+            varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
+            
+            ### Units
+            varns.units = 'unitless relevance'
+            ncfile.title = 'LRP relevance'
+            ncfile.instituion = 'Colorado State University'
+            ncfile.references = 'Barnes et al. [2020]'
+            
+            ### Data
+            years[:] = np.arange(var.shape[0])
+            latitude[:] = lats
+            longitude[:] = lons
+            varns[:] = var
+            
+            ncfile.close()
+            print('*Completed: Created netCDF4 File!')
+        
+        directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq)
+        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq)
+        netcdfLRPe(lats,lons,lrpteste,directoryoutput,'Testing',dataset,variq)
+        netcdfLRPe(lats,lons,lrpobservationse,directoryoutput,'Obs',dataset,variq)
+        
+        ##############################################################################
+        ##############################################################################
+        ##############################################################################
+        def netcdfLRPig(lats,lons,var,directory,typemodel,trainingdata,variq):
+            print('\n>>> Using netcdfLRP-e function!')
+            
+            from netCDF4 import Dataset
+            import numpy as np
+            
+            name = 'LRPMap_IG_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            filename = directory + name
+            ncfile = Dataset(filename,'w',format='NETCDF4')
+            ncfile.description = 'LRP maps for using selected seed' 
+            
+            ### Dimensions
+            ncfile.createDimension('years',var.shape[0])
+            ncfile.createDimension('lat',var.shape[1])
+            ncfile.createDimension('lon',var.shape[2])
+            
+            ### Variables
+            years = ncfile.createVariable('years','f4',('years'))
+            latitude = ncfile.createVariable('lat','f4',('lat'))
+            longitude = ncfile.createVariable('lon','f4',('lon'))
+            varns = ncfile.createVariable('LRP','f4',('years','lat','lon'))
+            
+            ### Units
+            varns.units = 'unitless relevance'
+            ncfile.title = 'LRP relevance'
+            ncfile.instituion = 'Colorado State University'
+            ncfile.references = 'Barnes et al. [2020]'
+            
+            ### Data
+            years[:] = np.arange(var.shape[0])
+            latitude[:] = lats
+            longitude[:] = lons
+            varns[:] = var
+            
+            ncfile.close()
+            print('*Completed: Created netCDF4 File!')
+        
+        directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq)
+        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq)
+        netcdfLRPig(lats,lons,lrptestig,directoryoutput,'Testing',dataset,variq)
+        netcdfLRPig(lats,lons,lrpobservationsig,directoryoutput,'Obs',dataset,variq)
  
-# ############################################################################### 
-# ############################################################################### 
-# ###############################################################################        
-#         ### Define variable for analysis
-#         print('\n\n------------------------')
-#         print(variq,'= Variable!')
-#         print(monthlychoice,'= Time!')
-#         print(reg_name,'= Region!')
-#         print(lat_bounds,lon_bounds)
-#         print(dataset,'= Model!')
-#         print(dataset_obs,'= Observations!\n')
-#         print(rm_annual_mean,'= rm_annual_mean') 
-#         print(rm_merid_mean,'= rm_merid_mean') 
-#         print(rm_ensemble_mean,'= rm_ensemble_mean') 
-#         print(land_only,'= land_only')
-#         print(ocean_only,'= ocean_only')
+############################################################################### 
+############################################################################### 
+###############################################################################        
+        ### Define variable for analysis
+        print('\n\n------------------------')
+        print(variq,'= Variable!')
+        print(monthlychoice,'= Time!')
+        print(reg_name,'= Region!')
+        print(lat_bounds,lon_bounds)
+        print(dataset,'= Model!')
+        print(dataset_obs,'= Observations!\n')
+        print(rm_annual_mean,'= rm_annual_mean') 
+        print(rm_merid_mean,'= rm_merid_mean') 
+        print(rm_ensemble_mean,'= rm_ensemble_mean') 
+        print(land_only,'= land_only')
+        print(ocean_only,'= ocean_only')
         
-#         ## Variables for plotting
-#         lons2,lats2 = np.meshgrid(lons,lats) 
-#         observations = data_obs
-#         modeldata = data
-#         modeldatamean = np.nanmean(modeldata,axis=0)
+        ## Variables for plotting
+        lons2,lats2 = np.meshgrid(lons,lats) 
+        observations = data_obs
+        modeldata = data
+        modeldatamean = np.nanmean(modeldata,axis=0)
         
-#         spatialmean_obs = UT.calc_weightedAve(observations,lats2)
-#         spatialmean_mod = UT.calc_weightedAve(modeldata,lats2)
-#         spatialmean_modmean = np.nanmean(spatialmean_mod,axis=0)
-#         plt.figure()
-#         plt.plot(spatialmean_modmean.transpose())
-#         plt.plot(spatialmean_obs,color='k',linewidth=2)
+        spatialmean_obs = UT.calc_weightedAve(observations,lats2)
+        spatialmean_mod = UT.calc_weightedAve(modeldata,lats2)
+        spatialmean_modmean = np.nanmean(spatialmean_mod,axis=0)
+        plt.figure()
+        plt.plot(spatialmean_modmean.transpose())
+        plt.plot(spatialmean_obs,color='k',linewidth=2)

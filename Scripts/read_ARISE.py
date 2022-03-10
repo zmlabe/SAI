@@ -235,9 +235,9 @@ def read_ARISE(directory,vari,sliceperiod,slicebase,sliceshape,addclimo,slicenan
     
     ###########################################################################
     ### Missing data
-    ensshape[np.where(ensshape < -1e10)] = np.nan
+    ensshape[np.where(ensshape < -1e10)] = 0.0
     if takeEnsMean == True:
-        ENSmean[np.where(ENSmean < -1e10)] = np.nan
+        ENSmean[np.where(ENSmean < -1e10)] = 0.0
     print('Completed: Masked missing data!')
     
     print('>>>>>>>>>> ENDING read_WACCM function!')

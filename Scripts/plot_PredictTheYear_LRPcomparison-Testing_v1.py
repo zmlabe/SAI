@@ -23,33 +23,35 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 
 ### Parameters
 directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+variq = 'SST' 
+directoryfigure = '/Users/zlabe/Desktop/SAI/LRP/%s/' % variq
 
 ### Read in LRP after training on WACCM
-data = Dataset(directorydata + 'LRPMap_Z_Testing_WACCM.nc')
+data = Dataset(directorydata + 'LRPMap_Z_Testing_WACCM_%s.nc' % variq)
 lat = data.variables['lat'][:]
 lon = data.variables['lon'][:]
 lrp_waccm_zq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_E_Testing_WACCM.nc')
+data = Dataset(directorydata + 'LRPMap_E_Testing_WACCM_%s.nc' % variq)
 lrp_waccm_eq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Testing_WACCM.nc')
+data = Dataset(directorydata + 'LRPMap_IG_Testing_WACCM_%s.nc' % variq)
 lrp_waccm_ig = data.variables['LRP'][:]
 data.close()
 
 ###############################################################################
 ### Read in LRP after training on ARISE
-data = Dataset(directorydata + 'LRPMap_Z_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_Z_Testing_ARISE_%s.nc' % variq)
 lrp_arise_zq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_E_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_E_Testing_ARISE_%s.nc' % variq)
 lrp_arise_eq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Testing_ARISE.nc')
+data = Dataset(directorydata + 'LRPMap_IG_Testing_ARISE_%s.nc' % variq)
 lrp_arise_ig = data.variables['LRP'][:]
 data.close()
 
@@ -65,7 +67,6 @@ lrp_arise_ig = np.nanmean(lrp_arise_ig,axis=0)
 ###############################################################################
 ###############################################################################
 ### Plot subplot of observations
-directoryfigure = '/Users/zlabe/Desktop/sAI/LRP/'
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
 limit = np.arange(0,0.81,0.005)
 barlim = np.round(np.arange(0,0.81,0.1),2)
@@ -223,4 +224,4 @@ cbar1.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.4)
 
-plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-Testing.png',dpi=300)
+plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-Testing_%s.png' % variq,dpi=300)
