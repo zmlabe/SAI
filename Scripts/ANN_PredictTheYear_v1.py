@@ -53,9 +53,9 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ###############################################################################
 ### Data preliminaries 
 directorydata = '/Users/zlabe/Data/LENS/monthly'
-datasetsingle = ['ARISE']
-dataset_obs = 'WACCM'
-variq = 'PRECT'
+datasetsingle = ['WACCM']
+dataset_obs = 'ARISE'
+variq = 'TREFHT'
 seasons = ['annual','JFM','AMJ','JAS','OND']
 seasons = ['annual']
 
@@ -142,7 +142,7 @@ for sis,singlesimulation in enumerate(datasetsingle):
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Calculate only over land? True if land ############################
-        land_only = False ######################################################
+        land_only = True ######################################################
         if land_only == True:
             if variq == 'TREFHT':
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
@@ -837,6 +837,8 @@ for sis,singlesimulation in enumerate(datasetsingle):
         if NNType == 'ANN':
             hiddensList = [[20,20]]
             ridge_penalty = [0.4]
+            if land_only == True:
+                ridge_penalty = [0.2]
             actFun = 'relu'
         elif NNType == 'linear':
             hiddensList = [[0]]

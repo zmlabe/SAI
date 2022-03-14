@@ -39,7 +39,7 @@ dataset_obs = 'ERA5BE'
 allDataLabels = ['ARISE','WACCM4.5']
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
 monthlychoiceq = ['JFM','AMJ','JAS','OND','annual']
-variables = ['PRECT']
+variables = ['TREFHT']
 variq = variables[0]
 reg_name = 'Globe'
 level = 'surface'
@@ -118,6 +118,15 @@ arise_globalmean = UT.calc_weightedAve(allarise,lat2)
 waccm_globalmeanm = np.nanmean(waccm_globalmean,axis=1)
 arise_globalmeanm = np.nanmean(arise_globalmean,axis=1)
 
+fig = plt.figure()
+a=waccm_globalmean[-1,:,:]
+b=arise_globalmean[-1,:,:]
+plt.plot(a.transpose(),color='r')
+plt.plot(b.transpose(),color='b')
+plt.ylim([14.8,17])
+
+
+sys.exit()
 ### Composites of before/after injections
 typeOfSlice = 'direct'
 if typeOfSlice == 'direct':
