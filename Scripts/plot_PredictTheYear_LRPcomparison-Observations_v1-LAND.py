@@ -25,33 +25,70 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
 variq = 'TREFHT' 
 directoryfigure = '/Users/zlabe/Desktop/SAI/LRP/%s/' % variq
+land_only = True
+ocean_only = False
+rm_annual_mean = False
+rm_ensemble_mean = False
+random_network_seed = 87750
+random_segment_seed = 24120
+hiddensList = [[20,20]]
+ridge_penalty = [0.65]
+monthlychoice = 'annual'
+reg_name = 'Globe'
+classChunk = 10
+lr_here = 0.01
+batch_size = 32
+iterations = [700]
+NNType = 'ANN'
 
 ### Read in LRP after training on WACCM
-data = Dataset(directorydata + 'LRPMap_Z_Obs_WACCM_%s.nc' % variq)
+modelType = 'TrainedOnWACCM'
+savename = modelType+'_'+variq+'_' + reg_name + '_' + monthlychoice + '_' + str(classChunk)+'yrChunks' + '_L2'+ str(ridge_penalty[0])+ '_LR' + str(lr_here)+ '_Batch'+ str(batch_size)+ '_Iters' + str(iterations[0]) + '_' + NNType + str(hiddensList[0][0]) + 'x' + str(hiddensList[0][-1]) + '_SegSeed' + str(random_segment_seed) + '_NetSeed'+ str(random_network_seed) 
+if rm_annual_mean == True:
+    savename = savename + '_AnnualMeanRemoved' 
+if rm_ensemble_mean == True:
+    savename = savename + '_EnsembleMeanRemoved' 
+if land_only == True: 
+    savename = savename + '_LANDONLY'
+if ocean_only == True:
+    savename = savename + '_OCEANONLY'
+
+data = Dataset(directorydata + 'LRPMap_Z_Obs' + '_' + variq + '_' + savename + '.nc')
 lat = data.variables['lat'][:]
 lon = data.variables['lon'][:]
 lrp_waccm_zq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_E_Obs_WACCM_%s.nc' % variq)
+data = Dataset(directorydata + 'LRPMap_E_Obs' + '_' + variq + '_' + savename + '.nc')
 lrp_waccm_eq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Obs_WACCM_%s.nc' % variq)
+data = Dataset(directorydata + 'LRPMap_IG_Obs' + '_' + variq + '_' + savename + '.nc')
 lrp_waccm_ig = data.variables['LRP'][:]
 data.close()
 
 ###############################################################################
 ### Read in LRP after training on ARISE
-data = Dataset(directorydata + 'LRPMap_Z_Obs_ARISE_%s.nc' % variq)
+modelType = 'TrainedOnARISE'
+savename = modelType+'_'+variq+'_' + reg_name + '_' + monthlychoice + '_' + str(classChunk)+'yrChunks' + '_L2'+ str(ridge_penalty[0])+ '_LR' + str(lr_here)+ '_Batch'+ str(batch_size)+ '_Iters' + str(iterations[0]) + '_' + NNType + str(hiddensList[0][0]) + 'x' + str(hiddensList[0][-1]) + '_SegSeed' + str(random_segment_seed) + '_NetSeed'+ str(random_network_seed) 
+if rm_annual_mean == True:
+    savename = savename + '_AnnualMeanRemoved' 
+if rm_ensemble_mean == True:
+    savename = savename + '_EnsembleMeanRemoved' 
+if land_only == True: 
+    savename = savename + '_LANDONLY'
+if ocean_only == True:
+    savename = savename + '_OCEANONLY'
+
+data = Dataset(directorydata + 'LRPMap_Z_Obs' + '_' + variq + '_' + savename + '.nc')
 lrp_arise_zq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_E_Obs_ARISE_%s.nc' % variq)
+data = Dataset(directorydata + 'LRPMap_E_Obs' + '_' + variq + '_' + savename + '.nc')
 lrp_arise_eq = data.variables['LRP'][:]
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Obs_ARISE_%s.nc' % variq)
+data = Dataset(directorydata + 'LRPMap_IG_Obs' + '_' + variq + '_' + savename + '.nc')
 lrp_arise_ig = data.variables['LRP'][:]
 data.close()
 

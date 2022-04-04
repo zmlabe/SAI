@@ -26,25 +26,70 @@ directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
 years = np.arange(2035,2069+1,1)
 testingn = 2
 variq = 'TREFHT'
-directoryfigure = '/Users/zlabe/Desktop/sAI/LRP/%s/' % variq
+directoryfigure = '/Users/zlabe/Desktop/SAI/LRP/%s/' % variq
+# land_only = True
+# ocean_only = False
+# rm_annual_mean = False
+# rm_merid_mean = False
+# rm_ensemble_mean = False
+# random_network_seed = 87750
+# random_segment_seed = 24120
+# hiddensList = [[20,20]]
+# ridge_penalty = [0.65]
+# monthlychoice = 'annual'
+# reg_name = 'Globe'
+# classChunk = 10
+# lr_here = 0.01
+# batch_size = 32
+# iterations = [700]
+# NNType = 'ANN'
+land_only = True
+ocean_only = False
+rm_annual_mean = False
+rm_merid_mean = True
+rm_ensemble_mean = False
+random_network_seed = 87750
+random_segment_seed = 24120
+hiddensList = [[20,20]]
+ridge_penalty = [0.16]
+monthlychoice = 'annual'
+reg_name = 'wideTropics'
+classChunk = 10
+lr_here = 0.01
+batch_size = 32
+iterations = [400]
+NNType = 'ANN'
 
 ###############################################################################
 ### Read in LRP after training on ARISE
-data = Dataset(directorydata + 'LRPMap_Z_Testing_ARISE_%s.nc' % variq)
+modelType = 'TrainedOnARISE'
+savename = modelType+'_'+variq+'_' + reg_name + '_' + monthlychoice + '_' + str(classChunk)+'yrChunks' + '_L2'+ str(ridge_penalty[0])+ '_LR' + str(lr_here)+ '_Batch'+ str(batch_size)+ '_Iters' + str(iterations[0]) + '_' + NNType + str(hiddensList[0][0]) + 'x' + str(hiddensList[0][-1]) + '_SegSeed' + str(random_segment_seed) + '_NetSeed'+ str(random_network_seed) 
+if rm_annual_mean == True:
+    savename = savename + '_AnnualMeanRemoved' 
+if rm_ensemble_mean == True:
+    savename = savename + '_EnsembleMeanRemoved' 
+if rm_merid_mean == True:
+    savename = savename + '_MeridionalMeanRemoved' 
+if land_only == True: 
+    savename = savename + '_LANDONLY'
+if ocean_only == True:
+    savename = savename + '_OCEANONLY'
+
+data = Dataset(directorydata + 'LRPMap_Z_Testing' + '_' + variq + '_' + savename + '.nc')
 lat = data.variables['lat'][:]
 lon = data.variables['lon'][:]                             
-lrp_arise_zq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
+lrp_arise_zq = data.variables['LRP'][:].reshape(testingn,years.shape[0],lat.shape[0],lon.shape[0])
 data.close()
 
 ### Change longitudes
 lon = np.where(lon >180,lon-360,lon)
 
-data = Dataset(directorydata + 'LRPMap_E_Testing_ARISE_%s.nc' % variq)
-lrp_arise_eq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
+data = Dataset(directorydata + 'LRPMap_E_Testing' + '_' + variq + '_' + savename + '.nc')
+lrp_arise_eq = data.variables['LRP'][:].reshape(testingn,years.shape[0],lat.shape[0],lon.shape[0])
 data.close()
 
-data = Dataset(directorydata + 'LRPMap_IG_Testing_ARISE_%s.nc' % variq)
-lrp_arise_igq = data.variables['LRP'][:].reshape(testingn,years.shape[0],96,144)
+data = Dataset(directorydata + 'LRPMap_IG_Testing' + '_' + variq + '_' + savename + '.nc')
+lrp_arise_igq = data.variables['LRP'][:].reshape(testingn,years.shape[0],lat.shape[0],lon.shape[0])
 data.close()
 
 ### Calculate ensemble mean 
@@ -226,4 +271,4 @@ cbar1.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.4)
 
-plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-ARISE_%s_LAND.png' % variq,dpi=300)
+plt.savefig(directoryfigure + 'PredictTheYear_LRPcomparison-ARISE_%s_LAND_%s.png' % (variq,reg_name),dpi=300)

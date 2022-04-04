@@ -16,7 +16,7 @@ Usage
 ###############################################################################
 ###############################################################################
 
-def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule,normLRP,numLats,numLons,numDim,classChunk,startYear):
+def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule,normLRP,numLats,numLons,numDim):
     """
     Calculate Deep Taylor for LRP
     """
@@ -25,22 +25,6 @@ def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule
     ### Import modules
     import numpy as np 
     import innvestigate
-    import calc_Stats as SSS
-    
-    ### Define useful functions
-    def invert_year_output(ypred,startYear):
-        inverted_years = SSS.convert_fuzzyDecade_toYear(ypred,startYear,
-                                                        classChunk)
-        
-        return inverted_years
-    
-    ### Define prediction error
-    yearsUnique = np.unique(YYt)
-    percCutoff = 90
-    withinYearInc = 5.
-    errTolerance = withinYearInc  
-    if(annType=='class'):
-        err = YYt[:,0] - invert_year_output(model.predict(XXt),startYear)
     
     ###########################################################################
     ###########################################################################
@@ -63,11 +47,12 @@ def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule
         analyzer = innvestigate.analyzer.relevance_based.relevance_analyzer.LRPEpsilon(model_nosoftmax, 
                                                                                         epsilon=1e10,
                                                                                         bias=biasBool)
+        print('LRP RULE === Epsilon !!!')
         #######################################################################
     elif lrpRule == 'integratedgradient':
         analyzer = innvestigate.analyzer.gradient_based.IntegratedGradients(model_nosoftmax, 
                                                                                         steps=64)
-        print('LRP RULE === Epsilon !!!')
+        print('LRP RULE === Integrated Gradient !!!')
         #######################################################################
     else:
         print(ValueError('Wrong LRP RULE!!!!!!!!!'))
@@ -79,11 +64,9 @@ def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule
 
     ### Analyze each input via the analyzer
     for i in np.arange(0,np.shape(XXt)[0]):
-        ### ensure error is small, i.e. model was correct
-        if(np.abs(err[i])<=errTolerance):
-            sample = XXt[i]
-            analyzer_output = analyzer.analyze(sample[np.newaxis,...])
-            deepTaylorMaps[i] = analyzer_output/np.sum(analyzer_output.flatten())
+        sample = XXt[i]
+        analyzer_output = analyzer.analyze(sample[np.newaxis,...])
+        deepTaylorMaps[i] = analyzer_output/np.sum(analyzer_output.flatten())
 
     ### Save only the positive contributions
     if any([lrpRule=='z',lrpRule=='epsilon',lrpRule=='integratedgradient']):
@@ -113,7 +96,7 @@ def calc_LRPModel(model,XXt,YYt,biasBool,annType,num_of_class,yearlabels,lrpRule
         summaryDTq = np.reshape(deepTaylorMaps,(deepTaylorMaps.shape[0]//len(yearlabels),
                                                 len(yearlabels),deepTaylorMaps.shape[1]))
         
-        ### Reshape into gridded maps
+        ### Reshape into gridded maps and scale
         lrpmaps = np.reshape(summaryDTq,(summaryDTq.shape[0],len(yearlabels),
                                          numLats,numLons))
         

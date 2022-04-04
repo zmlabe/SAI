@@ -118,15 +118,6 @@ arise_globalmean = UT.calc_weightedAve(allarise,lat2)
 waccm_globalmeanm = np.nanmean(waccm_globalmean,axis=1)
 arise_globalmeanm = np.nanmean(arise_globalmean,axis=1)
 
-fig = plt.figure()
-a=waccm_globalmean[-1,:,:]
-b=arise_globalmean[-1,:,:]
-plt.plot(a.transpose(),color='r')
-plt.plot(b.transpose(),color='b')
-plt.ylim([14.8,17])
-
-
-sys.exit()
 ### Composites of before/after injections
 typeOfSlice = 'direct'
 if typeOfSlice == 'direct':
@@ -151,15 +142,26 @@ differenceSAI = afterSAI - afterCON
 ###############################################################################
 ###############################################################################
 ### Plotting parameters
-directoryfigure = '//Users/zlabe/Desktop/SAI/'
-limitd = np.arange(-1,1.01,0.01)
-barlimd = np.round(np.arange(-1,1.1,1),2)
-limitc = np.arange(0,10.01,0.01)
-barlimc = np.round(np.arange(0,11,2),2)
+if variq == 'TREFHT':
+    directoryfigure = '/Users/zlabe/Desktop/SAI/Composites/T2M/'
+else:
+    directoryfigure = '/Users/zlabe/Desktop/SAI/Composites/%s/' % variq
+if variq == 'PRECT':
+    limitd = np.arange(-1,1.01,0.01)
+    barlimd = np.round(np.arange(-1,1.1,1),2)
+    limitc = np.arange(0,10.01,0.01)
+    barlimc = np.round(np.arange(0,11,2),2)
+    cmapq = [cmocean.cm.tarn,cmocean.cm.rain,cmocean.cm.rain,cmocean.cm.tarn,
+         '',cmocean.cm.rain,cmocean.cm.rain,cmocean.cm.tarn]
+elif variq == 'TREFHT':
+    limitd = np.arange(-2,2.01,0.01)
+    barlimd = np.round(np.arange(-2,2.1,1),2)
+    limitc = np.arange(-20,36,1)
+    barlimc = np.round(np.arange(-20,36,5),2)
+    cmapq = [cmocean.cm.balance,plt.cm.twilight,plt.cm.twilight,cmocean.cm.balance,
+         '',plt.cm.twilight,plt.cm.twilight,cmocean.cm.balance]
 arangeForPlotting = [differenceSAI,beforeSAI,afterSAI,diffSAIrun,
                      beforeCON,afterCON,diffCONrun]
-cmapq = [cmocean.cm.tarn,cmocean.cm.rain,cmocean.cm.rain,cmocean.cm.tarn,
-         '',cmocean.cm.rain,cmocean.cm.rain,cmocean.cm.tarn]
 limitq = [limitd,limitc,limitc,limitd,
           '',limitc,limitc,limitd]
 barlimq = [barlimd,barlimc,barlimc,barlimd,
@@ -171,8 +173,11 @@ loc = [0,1,2,3,5,6,7]
 ###############################################################################
 ### Plot subplot of different SAI analysis
 
-for mo in range(len(monthlychoiceq)):                                                                                                                         
-    label = r'\textbf{%s -- %s -- [mm/day]}' % (monthlychoiceq[mo],typeOfSlice)
+for mo in range(len(monthlychoiceq)):         
+    if variq == 'PRECT':                                                                                                                
+        label = r'\textbf{%s -- %s -- [mm/day]}' % (monthlychoiceq[mo],typeOfSlice)
+    elif variq == 'TREFHT':
+        label = r'\textbf{%s -- %s -- [$^{\circ}$C]}' % (monthlychoiceq[mo],typeOfSlice)
     
     fig = plt.figure(figsize=(8,4))
     for r in range(len(arangeForPlotting)):
@@ -210,4 +215,4 @@ for mo in range(len(monthlychoiceq)):
     
     plt.tight_layout()
     
-    plt.savefig(directoryfigure + 'SAI_Composites_PRECT_%s_%s.png' % (monthlychoiceq[mo],typeOfSlice),dpi=300)
+    plt.savefig(directoryfigure + 'SAI_Composites_%s_%s_%s.png' % (variq,monthlychoiceq[mo],typeOfSlice),dpi=300)

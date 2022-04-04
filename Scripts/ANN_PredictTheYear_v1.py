@@ -52,22 +52,23 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ###############################################################################
 ###############################################################################
 ### Data preliminaries 
-directorydata = '/Users/zlabe/Data/LENS/monthly'
+directorydata = '/Users/zlabe/Data/SAI/'
 datasetsingle = ['WACCM']
 dataset_obs = 'ARISE'
 variq = 'TREFHT'
 seasons = ['annual','JFM','AMJ','JAS','OND']
 seasons = ['annual']
+window = 0
 
 if datasetsingle[0] == 'WACCM':
     simuqq = 'WACCM'
-    timewaccm = np.arange(2015,2069+1,1)
+    timewaccm = np.arange(2015+window,2069+1,1)
     yearsall = [timewaccm]
     directoriesall = [directorydata]
     numOfEns = 10
 elif datasetsingle[0] == 'ARISE':
     simuqq = 'ARISE'
-    timearise = np.arange(2035,2069+1,1)
+    timearise = np.arange(2035+window,2069+1,1)
     yearsall = [timearise]
     directoriesall = [directorydata]
     numOfEns = 10
@@ -78,6 +79,8 @@ ravelyearsbinary = False
 ravelbinary = False
 lensalso = True
 randomalso = False
+ravel_modelens = False
+ravelmodeltime = False
 timeper = 'historical'
 shuffletype = 'GAUSS'
 ###############################################################################
@@ -86,6 +89,7 @@ lrpRule1 = 'z'
 lrpRule2 = 'epsilon'
 lrpRule3 = 'integratedgradient'
 normLRP = True
+cascade = True
 ###############################################################################
 ###############################################################################
 
@@ -112,16 +116,16 @@ for sis,singlesimulation in enumerate(datasetsingle):
         
         ### Define primary dataset to use
         dataset = singlesimulation
-        modelType = dataset
+        modelType = 'TrainedOn' + dataset
         
         ### Whether to test and plot the results using obs data
         test_on_obs = True
         if dataset_obs == 'ARISE':
-            year_obsall = np.arange(2035,2069+1,1)
+            year_obsall = np.arange(2035+window,2069+1,1)
             year_obs = year_obsall
             obsyearstart = year_obsall[0]
         elif dataset_obs == 'WACCM':
-            year_obsall = np.arange(2035,2069+1,1)
+            year_obsall = np.arange(2035+window,2069+1,1)
             year_obs = year_obsall
             obsyearstart = year_obsall[0]
         
@@ -134,8 +138,16 @@ for sis,singlesimulation in enumerate(datasetsingle):
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Remove the meridional mean? True to subtract it from dataset ######
-        rm_merid_mean = False #################################################
+        rm_merid_mean = True ##################################################
         if rm_merid_mean == True:
+            if variq == 'TREFHT':
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
+            else:
+                directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
+                
+        ### Feed the standard deviations? True to calculate it ################
+        rm_standard_dev = False ###############################################
+        if rm_standard_dev == True:
             if variq == 'TREFHT':
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
             else:
@@ -158,7 +170,7 @@ for sis,singlesimulation in enumerate(datasetsingle):
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/%s/' % variq
         
         ### Rove the ensemble mean? True to subtract it from dataset ##########
-        rm_ensemble_mean = False ###############################################
+        rm_ensemble_mean = False ##############################################
         if rm_ensemble_mean == True:
             if variq == 'TREFHT':
                 directoryfigure = '/Users/zlabe/Desktop/SAI/predictTheYear/T2M/'
@@ -833,22 +845,78 @@ for sis,singlesimulation in enumerate(datasetsingle):
         option4 = True
         biasBool = False
         
-        ### Type of network
-        if NNType == 'ANN':
-            hiddensList = [[20,20]]
-            ridge_penalty = [0.4]
-            if land_only == True:
-                ridge_penalty = [0.2]
-            actFun = 'relu'
-        elif NNType == 'linear':
-            hiddensList = [[0]]
-            ridge_penalty = [0.]
-            actFun = 'linear'
+        if variq == 'TREFHT':
+            if reg_name == 'Arctic':
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.02]
+                    actFun = 'relu'
+                    iterations = [300]
+            elif reg_name == 'wideTropics':
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.16]
+                    actFun = 'relu'
+                    iterations = [400]
+                    ############################
+                    if rm_standard_dev == True:
+                        hiddensList = [[20,20]]
+                        ridge_penalty = [0.4]
+                        if land_only == True:
+                            ridge_penalty = [0.1]
+                        actFun = 'relu'
+                        iterations = [900]
+            else:
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.65]
+                    actFun = 'relu'
+                    iterations = [700]
+                elif NNType == 'linear':
+                    hiddensList = [[0]]
+                    ridge_penalty = [0.]
+                    actFun = 'linear'
+                    iterations = [700]
+        elif variq == 'PRECT':
+            if reg_name == 'Arctic':
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.75]
+                    actFun = 'relu'
+                    iterations = [700]
+            elif reg_name == 'wideTropics':
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.2]
+                    actFun = 'relu'
+                    iterations = [600]
+            else:
+                ### Type of network
+                if NNType == 'ANN':
+                    hiddensList = [[20,20]]
+                    ridge_penalty = [0.4]
+                    if land_only == True:
+                        ridge_penalty = [0.5]
+                    actFun = 'relu'
+                    iterations = [500]
+                elif NNType == 'linear':
+                    hiddensList = [[0]]
+                    ridge_penalty = [0.]
+                    actFun = 'linear'
+                    iterations = [700]
         
         expList = [(0)]
         expN = np.size(expList)
-        
-        iterations = [300]
         random_segment = True
         foldsN = 1
         
@@ -878,27 +946,25 @@ for sis,singlesimulation in enumerate(datasetsingle):
             for exp in expList:  
                 # get the data together
                 data, data_obs, = data_all, data_obs_all,
-                if rm_annual_mean == True:
-                    data, data_obs = dSS.remove_annual_mean(data,data_obs,
-                                                        lats,lons,
-                                                        lats_obs,lons_obs)
+                if rm_annual_mean == True:        
+                    data, data_obs = dSS.remove_annual_mean(data,data_obs,lats,lons,lats_obs,lons_obs)
                     print('*Removed annual mean*')
-    
                 if rm_merid_mean == True:
-                    data, data_obs = dSS.remove_merid_mean(data,data_obs,
-                                                        lats,lons,
-                                                        lats_obs,lons_obs)
+                    data, data_obs = dSS.remove_merid_mean(data,data_obs,lats,lons,lats_obs,lons_obs)
                     print('*Removed meridian mean*')  
                 if rm_ensemble_mean == True:
-                    data = dSS.remove_ensemble_mean(data)
+                    data = dSS.remove_ensemble_mean(data,ravel_modelens,ravelmodeltime,rm_standard_dev,numOfEns)
                     print('*Removed ensemble mean*')
-                    
+                if rm_standard_dev == True:
+                    data = dSS.rm_standard_dev(data,window,ravelmodeltime,numOfEns)
+                    print('*Removed standard deviation*')
                 if land_only == True:
                     data, data_obs = dSS.remove_ocean(data,data_obs,lat_bounds,lon_bounds) 
-
+                    print('*Removed ocean*')
                 if ocean_only == True:
                     data, data_obs = dSS.remove_land(data,data_obs,lat_bounds,lon_bounds) 
-    
+                    print('*Removed land*')
+                    
                 for ih in np.arange(0,len(hiddensList)):
                     hiddens = [hiddensList[ih]]
                     if hiddens[0][0]==0:
@@ -948,39 +1014,36 @@ for sis,singlesimulation in enumerate(datasetsingle):
                     ################################################################################################################################################                
                     # save the model
                     dirname = '/Users/zlabe/Documents/Research/SolarIntervention/savedModels/'
-                    savename = modelType+'_'+variq+'_' + reg_name + '_' + str(classChunk)+'_' + NNType + '_L2_'+ str(ridge_penalty[0])+ '_LR_' + str(lr_here)+ '_Batch'+ str(batch_size)+ '_Iters' + str(iterations[0]) + '_' + str(hiddensList[0][0]) + 'x' + str(hiddensList[0][-1]) + '_SegSeed' + str(random_segment_seed) + '_NetSeed'+ str(random_network_seed) 
+                    savename = modelType+'_'+variq+'_' + reg_name + '_' + monthlychoice + '_' + str(classChunk)+'yrChunks' + '_L2'+ str(ridge_penalty[0])+ '_LR' + str(lr_here)+ '_Batch'+ str(batch_size)+ '_Iters' + str(iterations[0]) + '_' + NNType + str(hiddensList[0][0]) + 'x' + str(hiddensList[0][-1]) + '_SegSeed' + str(random_segment_seed) + '_NetSeed'+ str(random_network_seed) 
                     savenameModelTestTrain = modelType+'_'+variq+'_modelTrainTest_SegSeed'+str(random_segment_seed)+'_NetSeed'+str(random_network_seed)
                     
-                    if(rm_annual_mean==True):
+                    if rm_annual_mean == True:
                         savename = savename + '_AnnualMeanRemoved' 
                         savenameModelTestTrain = savenameModelTestTrain + '_AnnualMeanRemoved'
-                    if(rm_ensemble_mean==True):
+                    if rm_merid_mean == True:
+                        savename = savename + '_MeridionalMeanRemoved' 
+                        savenameModelTestTrain = savenameModelTestTrain + '_MeridionalMeanRemoved'
+                    if rm_ensemble_mean == True:
                         savename = savename + '_EnsembleMeanRemoved' 
                         savenameModelTestTrain = savenameModelTestTrain + '_EnsembleMeanRemoved'
-    
-                    if(reg_name=='Globe'):
-                        regSave = ''
-                    else:
-                        regSave = '_' + reg_name
-    
-                    savename = savename + regSave    
+                    if rm_standard_dev == True:
+                        savename = savename + '_STDCALC'
+                        savenameModelTestTrain = savenameModelTestTrain + '_STDCALC'
+                    if land_only == True: 
+                        savename = savename + '_LANDONLY'
+                        savenameModelTestTrain = savenameModelTestTrain + '_LANDONLY'
+                    if ocean_only == True:
+                        savename = savename + '_OCEANONLY'
+                        savenameModelTestTrain = savenameModelTestTrain + '_OCEANONLY'
+
                     model.save(dirname + savename + '.h5')
                     np.savez(dirname + savenameModelTestTrain + '.npz',trainModels=trainIndices,testModels=testIndices,Xtrain=Xtrain,Ytrain=Ytrain,Xtest=Xtest,Ytest=Ytest,Xmean=Xmean,Xstd=Xstd,lats=lats,lons=lons)
-    
-                    print('saving ' + savename)
+                    print('Saving ------->' + savename)
                     
                     ###############################################################
-                    ### Make final plot
-                    ### Get obs
-                    dataOBSERVATIONS = data_obs
-                    latsOBSERVATIONS = lats_obs
-                    lonsOBSERVATIONS = lons_obs
-    
-                    def findStringMiddle(start,end,s):
-                        return s[s.find(start)+len(start):s.rfind(end)]
-    
-                    Xobs = dataOBSERVATIONS.reshape(dataOBSERVATIONS.shape[0],dataOBSERVATIONS.shape[1]*dataOBSERVATIONS.shape[2])
-                    yearsObs = np.arange(dataOBSERVATIONS.shape[0]) + obsyearstart
+                    ### Assess observations
+                    Xobs = data_obs.reshape(data_obs.shape[0],data_obs.shape[1]*data_obs.shape[2])
+                    yearsObs = np.arange(data_obs.shape[0]) + obsyearstart
     
                     annType = 'class'
                     if monthlychoice == 'DJF':
@@ -1028,6 +1091,8 @@ for sis,singlesimulation in enumerate(datasetsingle):
         numLons = lons.shape[0]  
         numDim = 3
         num_of_class = len(yearsall)
+        infoSave = savename
+
         
         lrpallz = LRP.calc_LRPModel(model,np.append(XtrainS,XtestS,axis=0),
                                                 np.append(Ytrain,Ytest,axis=0),
@@ -1130,13 +1195,13 @@ for sis,singlesimulation in enumerate(datasetsingle):
         ##############################################################################
         ##############################################################################
         ##############################################################################
-        def netcdfLRPz(lats,lons,var,directory,typemodel,trainingdata,variq):
+        def netcdfLRPz(lats,lons,var,directory,typemodel,trainingdata,variq,infoSave):
             print('\n>>> Using netcdfLRP-z function!')
             
             from netCDF4 import Dataset
             import numpy as np
             
-            name = 'LRPMap_Z_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            name = 'LRPMap_Z_' + typemodel + '_' + variq + '_' + infoSave + '.nc'
             filename = directory + name
             ncfile = Dataset(filename,'w',format='NETCDF4')
             ncfile.description = 'LRP maps for using selected seed' 
@@ -1168,21 +1233,21 @@ for sis,singlesimulation in enumerate(datasetsingle):
             print('*Completed: Created netCDF4 File!')
         
         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-        # netcdfLRPz(lats,lons,lrpallz,directoryoutput,'AllData',dataset,variq)
-        # netcdfLRPz(lats,lons,lrptrainz,directoryoutput,'Training',dataset,variq)
-        netcdfLRPz(lats,lons,lrptestz,directoryoutput,'Testing',dataset,variq)
-        netcdfLRPz(lats,lons,lrpobservationsz,directoryoutput,'Obs',dataset,variq)
+        # netcdfLRPz(lats,lons,lrpallz,directoryoutput,'AllData',dataset,variq,infoSave)
+        # netcdfLRPz(lats,lons,lrptrainz,directoryoutput,'Training',dataset,variq,infoSave)
+        netcdfLRPz(lats,lons,lrptestz,directoryoutput,'Testing',dataset,variq,infoSave)
+        netcdfLRPz(lats,lons,lrpobservationsz,directoryoutput,'Obs',dataset,variq,infoSave)
         
         ##############################################################################
         ##############################################################################
         ##############################################################################
-        def netcdfLRPe(lats,lons,var,directory,typemodel,trainingdata,variq):
+        def netcdfLRPe(lats,lons,var,directory,typemodel,trainingdata,variq,infoSave):
             print('\n>>> Using netcdfLRP-e function!')
             
             from netCDF4 import Dataset
             import numpy as np
             
-            name = 'LRPMap_E_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            name = 'LRPMap_E_' + typemodel + '_' + variq + '_' + infoSave + '.nc'
             filename = directory + name
             ncfile = Dataset(filename,'w',format='NETCDF4')
             ncfile.description = 'LRP maps for using selected seed' 
@@ -1214,21 +1279,21 @@ for sis,singlesimulation in enumerate(datasetsingle):
             print('*Completed: Created netCDF4 File!')
         
         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq)
-        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq)
-        netcdfLRPe(lats,lons,lrpteste,directoryoutput,'Testing',dataset,variq)
-        netcdfLRPe(lats,lons,lrpobservationse,directoryoutput,'Obs',dataset,variq)
+        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq,infoSave)
+        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq,infoSave)
+        netcdfLRPe(lats,lons,lrpteste,directoryoutput,'Testing',dataset,variq,infoSave)
+        netcdfLRPe(lats,lons,lrpobservationse,directoryoutput,'Obs',dataset,variq,infoSave)
         
         ##############################################################################
         ##############################################################################
         ##############################################################################
-        def netcdfLRPig(lats,lons,var,directory,typemodel,trainingdata,variq):
+        def netcdfLRPig(lats,lons,var,directory,typemodel,trainingdata,variq,infoSave):
             print('\n>>> Using netcdfLRP-e function!')
             
             from netCDF4 import Dataset
             import numpy as np
             
-            name = 'LRPMap_IG_' + typemodel + '_' + trainingdata + '_' + variq + '.nc'
+            name = 'LRPMap_IG_' + typemodel + '_' + variq + '_' + infoSave + '.nc'
             filename = directory + name
             ncfile = Dataset(filename,'w',format='NETCDF4')
             ncfile.description = 'LRP maps for using selected seed' 
@@ -1260,10 +1325,10 @@ for sis,singlesimulation in enumerate(datasetsingle):
             print('*Completed: Created netCDF4 File!')
         
         directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq)
-        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq)
-        netcdfLRPig(lats,lons,lrptestig,directoryoutput,'Testing',dataset,variq)
-        netcdfLRPig(lats,lons,lrpobservationsig,directoryoutput,'Obs',dataset,variq)
+        # netcdfLRPe(lats,lons,lrpalle,directoryoutput,'AllData',dataset,variq,infoSave)
+        # netcdfLRPe(lats,lons,lrptraine,directoryoutput,'Training',dataset,variq,infoSave)
+        netcdfLRPig(lats,lons,lrptestig,directoryoutput,'Testing',dataset,variq,infoSave)
+        netcdfLRPig(lats,lons,lrpobservationsig,directoryoutput,'Obs',dataset,variq,infoSave)
  
 ############################################################################### 
 ############################################################################### 

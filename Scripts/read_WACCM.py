@@ -201,6 +201,7 @@ def read_WACCM(directory,vari,sliceperiod,slicebase,sliceshape,addclimo,slicenan
 
     ###########################################################################
     ### Change missing values
+
     if slicenan == 'nan':
         ensshape[np.where(np.isnan(ensshape))] = np.nan
         print('Completed: missing values are =',slicenan)
@@ -247,20 +248,20 @@ def read_WACCM(directory,vari,sliceperiod,slicebase,sliceshape,addclimo,slicenan
 
     return lat1,lon1,ensshape,ENSmean
 
-### Test functions - do not use!
-import numpy as np
-import matplotlib.pyplot as plt
-import calc_Utilities as UT
-directory = '/Users/zlabe/Data/SAI/monthly/'
-vari = 'TREFHT'
-sliceperiod = 'annual'
-slicebase = np.arange(1951,1980+1,1)
-sliceshape = 4
-slicenan = 'nan'
-addclimo = True
-takeEnsMean = False
-lat,lon,var,ENSmean = read_WACCM(directory,vari,sliceperiod,
-                        slicebase,sliceshape,addclimo,
-                        slicenan,takeEnsMean)
-lon2,lat2 = np.meshgrid(lon,lat)
-ave = UT.calc_weightedAve(var,lat2)
+# ### Test functions - do not use!
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import calc_Utilities as UT
+# directory = '/Users/zlabe/Data/SAI/monthly/'
+# vari = 'TREFHT'
+# sliceperiod = 'annual'
+# slicebase = np.arange(1951,1980+1,1)
+# sliceshape = 4
+# slicenan = 'nan'
+# addclimo = True
+# takeEnsMean = False
+# lat,lon,var,ENSmean = read_WACCM(directory,vari,sliceperiod,
+#                         slicebase,sliceshape,addclimo,
+#                         slicenan,takeEnsMean)
+# lon2,lat2 = np.meshgrid(lon,lat)
+# ave = UT.calc_weightedAve(var,lat2)

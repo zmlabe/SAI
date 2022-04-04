@@ -245,6 +245,20 @@ def readFiles(variq,dataset,monthlychoice,numOfEns,lensalso,randomalso,ravelyear
                                               slicebaseCESMall,sliceshapeCESMall,
                                               addclimoCESMall,slicenanCESMall,
                                               takeEnsMeanCESMall,numOfEns,timeper) 
+    elif dataset == 'all_saiComparison':
+        import calc_ARISEtogether as ARISEall
+        directorydataARISEall = '/Users/zlabe/Data/'
+        sliceshapeARISEall = 4
+        slicenanARISEall = 'nan'
+        ENSmean = 'nan'
+        addclimoARISEall = True
+        slicebaseARISEall = np.arange(2035,2069+1,1)
+        takeEnsMeanARISEall = False
+        lat1,lon1,data,= ARISEall.read_ARISEtogether(directorydataARISEall,variq,
+                                              monthlychoice,
+                                              slicebaseARISEall,sliceshapeARISEall,
+                                              addclimoARISEall,slicenanARISEall,
+                                              takeEnsMeanARISEall,numOfEns,timeper) 
     elif dataset == 'SMILE':
         if timeper == 'historical':
             import read_SMILE_historical as SM

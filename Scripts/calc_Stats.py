@@ -21,16 +21,15 @@ Usage
     [11] standardize_dataVal(Xtrain,Xtest,Xval)
     [12] rm_standard_dev(var,window,ravelmodeltime,numOfEns)
     [13] rm_variance_dev(var,window)
-    [14] addNoiseTwinSingle(data,integer,sizeOfTwin,random_segment_seed,maskNoiseClass,lat_bounds,lon_bounds)
-    [15] smoothedEnsembles(data,lat_bounds,lon_bounds)
-    [16] remove_trend_obs(datavar,level)
-    [17] convert_fuzzyDecade(data,startYear,classChunk)
-    [18] convert_fuzzyDecade_toYear(label,startYear,classChunk)
-    [19] invert_year_output(ypred,startYear):
-    [20] invert_year_outputChunk(ypred,startYear):d
-    [21] convert_to_class(data,startYear):
-    [22] create_multiClass(xInput,yOutput):
-    [23] create_multiLabel(yClass):
+    [14] smoothedEnsembles(data,lat_bounds,lon_bounds)
+    [15] remove_trend_obs(datavar,level)
+    [16] convert_fuzzyDecade(data,startYear,classChunk)
+    [17] convert_fuzzyDecade_toYear(label,startYear,classChunk)
+    [18] invert_year_output(ypred,startYear):
+    [19] invert_year_outputChunk(ypred,startYear):d
+    [20] convert_to_class(data,startYear):
+    [21] create_multiClass(xInput,yOutput):
+    [22] create_multiLabel(yClass):
 """
 
 def rmse(a,b):
@@ -79,15 +78,23 @@ def remove_annual_mean(data,data_obs,lats,lons,lats_obs,lons_obs):
     ### Import modulates
     import numpy as np
     import calc_Utilities as UT
+    import sys
     
     ### Create 2d grid
     lons2,lats2 = np.meshgrid(lons,lats)
     lons2_obs,lats2_obs = np.meshgrid(lons_obs,lats_obs)
     
     ### Calculate weighted average and remove mean
-    data = data - UT.calc_weightedAve(data,lats2)[:,:,np.newaxis,np.newaxis]
-    data_obs = data_obs - UT.calc_weightedAve(data_obs,lats2_obs)[:,np.newaxis,np.newaxis]
-    
+    if data.ndim == 4:
+        data = data - UT.calc_weightedAve(data,lats2)[:,:,np.newaxis,np.newaxis]
+        data_obs = data_obs - UT.calc_weightedAve(data_obs,lats2_obs)[:,np.newaxis,np.newaxis]
+    elif data.ndim == 5:
+        data = data - UT.calc_weightedAve(data,lats2)[:,:,:,np.newaxis,np.newaxis]
+        data_obs = data_obs - UT.calc_weightedAve(data_obs,lats2_obs)[:,np.newaxis,np.newaxis]
+    else:
+        print(ValueError('WRONG SIZE OF DATA FOR REMOVING ANNUAL MEAN!'))
+        sys.exit()
+        
     return data,data_obs
 
 ###############################################################################
@@ -101,7 +108,7 @@ def remove_merid_mean(data,data_obs,lats,lons,lats_obs,lons_obs):
     import numpy as np
     
     ### Remove mean of latitude
-    data = data - np.nanmean(data,axis=3)[:,:,:,np.newaxis,:]
+    data = data - np.nanmean(data,axis=2)[:,:,np.newaxis,:]
     data_obs = data_obs - np.nanmean(data_obs,axis=1)[:,np.newaxis,:]
 
     return data,data_obs
@@ -377,7 +384,7 @@ def rm_standard_dev(var,window,ravelmodeltime,numOfEns):
         newdata = np.reshape(newdataq,(newdataq.shape[0]*newdataq.shape[1],
                                        newdataq.shape[2],newdataq.shape[3]))
     else:
-        newdata = np.reshape(newdataq,(newdataq.shape[0]//numOfEns,numOfEns,newdataq.shape[1],
+        newdata = np.reshape(newdataq,(numOfEns,newdataq.shape[1],
                                        newdataq.shape[2],newdataq.shape[3]))
     print('-----------COMPLETED: Rolling std!\n\n')     
     return newdata 
@@ -409,293 +416,6 @@ def rm_variance_dev(var,window,ravelmodeltime):
         newdata = newdataq
     print('-----------COMPLETED: Rolling vari!\n\n')     
     return newdata 
-
-###############################################################################
-
-def addNoiseTwinSingle(data,data_obs,integer,sizeOfTwin,random_segment_seed,maskNoiseClass,lat_bounds,lon_bounds):
-    """
-    Calculate an additional class of noise added to the original data
-    """
-    import numpy as np
-    import sys
-    print('\n----------- USING EXPERIMENT CLASS #%s -----------' % sizeOfTwin)
-    
-    if sizeOfTwin == 1: 
-        """
-        Adds random noise to each grid point
-        """
-        newmodels = data.copy()
-        if newmodels.shape[0] > 7:
-            newmodels = newmodels[:7,:,:,:,:]
-        
-        dataRandNoise = np.random.randint(low=-integer,high=integer+1,size=newmodels.shape) 
-        # dataRandNoise = np.random.uniform(low=-integer,high=integer,size=newmodels.shape) 
-        randomNoiseTwinq = newmodels + dataRandNoise
-        randomNoiseTwin = randomNoiseTwinq.reshape(randomNoiseTwinq.shape[0]*randomNoiseTwinq.shape[1],
-                                                  randomNoiseTwinq.shape[2],randomNoiseTwinq.shape[3],
-                                                  randomNoiseTwinq.shape[4])
-        print('--Size of noise twin --->',randomNoiseTwin.shape)
-        print('<<Added noise of +-%s at every grid point for twin!>>' % integer)
-        
-        ### Calculating random subsample
-        if random_segment_seed == None:
-            random_segment_seed = int(int(np.random.randint(1, 100000)))
-        np.random.seed(random_segment_seed)
-        
-        nrows = randomNoiseTwin.shape[0]
-        nens = randomNoiseTwinq.shape[1]
-    
-        ### Picking out random ensembles
-        i = 0
-        newIndices = list()
-        while i < nens:
-            line = np.random.randint(0, nrows)
-            if line not in newIndices:
-                newIndices.append(line)
-                i += 1
-            else:
-                pass
-        print('<<Subsampling noise on %s model-ensembles>>' % newIndices)
-        
-        ### Subsample the noisy data
-        noiseModel = randomNoiseTwin[newIndices,:,:,:]
-        noiseModelClass = noiseModel[np.newaxis,:,:,:,:]
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    elif sizeOfTwin == 2: 
-        """
-        Adds multimodel bias to each model
-        """
-        newmodels = data.copy()
-        multimodelmean = np.nanmean(newmodels,axis=0) # model mean      
-        uniquemodelbias = newmodels - multimodelmean # difference
-        
-        aveensbias = np.nanmean(uniquemodelbias,axis=1) # ensemble mean
-        avebias = np.nanmean(aveensbias,axis=1) # time mean
-
-        randomNoiseTwinq = newmodels + avebias[:,np.newaxis,np.newaxis,:,:] 
-        randomNoiseTwin = randomNoiseTwinq.reshape(randomNoiseTwinq.shape[0]*randomNoiseTwinq.shape[1],
-                                                  randomNoiseTwinq.shape[2],randomNoiseTwinq.shape[3],
-                                                  randomNoiseTwinq.shape[4])
-        print('--Size of noise twin --->',randomNoiseTwin.shape)
-        print('<<Added noise of multimodel bias>>')
-        
-        ### Calculating random subsample
-        if random_segment_seed == None:
-            random_segment_seed = int(int(np.random.randint(1, 100000)))
-        np.random.seed(random_segment_seed)
-        
-        nrows = randomNoiseTwin.shape[0]
-        nens = randomNoiseTwinq.shape[1]
-    
-        ### Picking out random ensembles
-        i = 0
-        newIndices = list()
-        while i < nens:
-            line = np.random.randint(0, nrows)
-            if line not in newIndices:
-                newIndices.append(line)
-                i += 1
-            else:
-                pass
-        print('<<Subsampling noise on %s model-ensembels>>' % newIndices)
-        
-        ### Subsample the noisy data
-        noiseModel = randomNoiseTwin[newIndices,:,:,:]
-        noiseModelClass = noiseModel[np.newaxis,:,:,:,:]
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    elif sizeOfTwin == 3: 
-        """
-        Adds bias from observations to each model
-        """        
-        newmodels = data.copy()
-        diffobs = newmodels - data_obs[np.newaxis,np.newaxis,:,:,:]
-        ensmean = np.nanmean(diffobs,axis=1) # ensemble mean
-        avebias = np.nanmean(ensmean,axis=1) # years mean
-
-        randomNoiseTwinq = newmodels + avebias[:,np.newaxis,np.newaxis,:,:] 
-        randomNoiseTwin = randomNoiseTwinq.reshape(randomNoiseTwinq.shape[0]*randomNoiseTwinq.shape[1],
-                                                  randomNoiseTwinq.shape[2],randomNoiseTwinq.shape[3],
-                                                  randomNoiseTwinq.shape[4])
-        print('--Size of noise twin --->',randomNoiseTwin.shape)
-        print('<<Added noise of observational bias>>')
-        
-        ### Calculating random subsample
-        if random_segment_seed == None:
-            random_segment_seed = int(int(np.random.randint(1, 100000)))
-        np.random.seed(random_segment_seed)
-        
-        nrows = randomNoiseTwin.shape[0]
-        nens = randomNoiseTwinq.shape[1]
-    
-        ### Picking out random ensembles
-        i = 0
-        newIndices = list()
-        while i < nens:
-            line = np.random.randint(0, nrows)
-            if line not in newIndices:
-                newIndices.append(line)
-                i += 1
-            else:
-                pass
-        print('<<Subsampling noise on %s model-ensembels>>' % newIndices)
-        
-        ### Subsample the noisy data
-        noiseModel = randomNoiseTwin[newIndices,:,:,:]
-        noiseModelClass = noiseModel[np.newaxis,:,:,:,:]
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    elif sizeOfTwin == 4: 
-        """
-        Adds multimodel mean class
-        """        
-        newmodels = data.copy()
-        multimodelmean = np.nanmean(newmodels,axis=0)
-        randomNoiseTwin = multimodelmean
-        print('--Size of noise twin --->',randomNoiseTwin.shape)
-        print('<<Added noise of multimodel mean class>>')
-        
-        ### Add new class
-        noiseModelClass = randomNoiseTwin[np.newaxis,:,:,:,:]
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    elif sizeOfTwin == 5:
-        """ 
-        Adds random noise numbers
-        """
-        integer = 35
-        randomNoiseTwin = np.random.uniform(low=-integer,high=integer,size=(data.shape[1],data.shape[2],data.shape[3],data.shape[4]))
-        
-        ### Add new class
-        noiseModelClass = randomNoiseTwin[np.newaxis,:,:,:,:]
-        print('--Size of noise twin --->',randomNoiseTwin.shape)
-        print('<<Added noise of random numbers class for +-%s>>' % integer)
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    elif sizeOfTwin == 6:
-        """ 
-        Smoothes data
-        """
-        newmodels = data.copy()
-        testens = newmodels[6,:,:,:,:] # 6 for LENS
-
-        newmodeltest = np.empty(testens.shape)
-        for sh in range(testens.shape[0]):
-            ensnum = np.arange(data.shape[1])
-            slices = np.random.choice(ensnum,size=data.shape[0],replace=False)
-            slicenewmodel = np.nanmean(testens[slices,:,:,:],axis=0)
-            newmodeltest[sh,:,:,:] = slicenewmodel
-        
-        ### Add new class
-        noiseModelClass = newmodeltest[np.newaxis,:,:,:,:]
-        print('--Size of noise twin --->',newmodeltest.shape)
-        print('<<Added noise of shuffled model 7x for 16 ensembles>>')
-        
-        ### Mask land or ocean if necessary
-        if maskNoiseClass != 'none':
-            if maskNoiseClass == 'land':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_ocean(noiseModelClass,emptyobs,lat_bounds,lon_bounds) 
-                print('\n*Removed land data - OCEAN TWIN*')
-            elif maskNoiseClass == 'ocean':
-                emptyobs = np.full((noiseModelClass.shape[2],noiseModelClass.shape[3],noiseModelClass.shape[4]),np.nan)
-                noiseModelClass,wrong_obs = remove_land(noiseModelClass,emptyobs,lat_bounds,lon_bounds)                 
-                print('\n*Removed land data - NOISE TWIN*')  
-            else:
-                print(ValueError('SOMETHING IS WRONG WITH MASKING NOISE TWIN!'))
-                sys.exit()
-        
-        ### Make new class of noisy twin subsample
-        dataclass = np.append(data,noiseModelClass,axis=0)
-        
-    else:
-        print(ValueError('Double check experiment for random class!'))
-        sys.exit()
-    
-    print('--NEW Size of noise class--->',dataclass.shape)
-    print('----------- ENDING EXPERIMENT CLASS #%s -----------' % sizeOfTwin)
-    return dataclass
 
 ###############################################################################
 
