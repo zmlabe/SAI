@@ -55,7 +55,7 @@ modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
 variq = 'TREFHT'
-reg_name = 'Arctic'
+reg_name = 'Globe'
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -70,7 +70,7 @@ dataset_obs = '20CRv3'
 ###############################################################################
 ###############################################################################
 rm_merid_mean = False
-rm_annual_mean = True
+rm_annual_mean = False
 rm_ensemble_mean = False
 rm_standard_dev = False
 ###############################################################################
@@ -809,6 +809,9 @@ for sis,singlesimulation in enumerate(datasetsingle):
         
         np.savetxt(directoryoutput + 'trainingPredictedLabels_' + saveData + '.txt',indextrain)
         np.savetxt(directoryoutput + 'testingPredictedLabels_' + saveData + '.txt',indextest)
+        
+        np.savetxt(directoryoutput + 'trainingPredictedConfidence_' + saveData + '.txt',trainingout)
+        np.savetxt(directoryoutput + 'testingPredictedConfidence_' + saveData + '.txt',testingout)
         
         ### Save predictions for observations
         np.savetxt(directoryoutput + 'obsLabels_' + saveData + '.txt',labelsobs)
