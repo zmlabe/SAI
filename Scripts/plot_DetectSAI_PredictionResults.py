@@ -17,6 +17,7 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 
 ### Hyperparamters for files of the ANN model
 yearsall = np.arange(2035,2069+1,1)
+yearsobs = np.arange(1900,2015+1,1)
 variq = 'TREFHT'
 random_segment_seed = int(np.genfromtxt('/Users/zlabe/Documents/Research/GmstTrendPrediction/Data/SelectedSegmentSeed.txt',unpack=True))
 random_network_seed = 87750
@@ -27,7 +28,7 @@ ridge_penalty = [1]
 iterations = [500]
 actFun = 'relu'
 NNType = 'ANN'
-reg_name = 'Globe'
+reg_name = 'Arctic'
 monthlychoice = 'annual'
 seasons = monthlychoice
 land_only = True
@@ -108,10 +109,10 @@ ax.tick_params(axis='y',which='both',length=0)
 for i in range(testingPred.shape[0]):
     for yr in range(testingPred.shape[1]):
         if testingPred[i,yr] == 0:
-            cc = 'deepskyblue'
+            cc = 'teal'
             label = 'SAI'
         elif testingPred[i,yr] == 1:
-            cc = 'crimson'
+            cc = 'maroon'
             label = 'Control'
             
         if testingPred[i,yr] == 0:
@@ -122,18 +123,67 @@ for i in range(testingPred.shape[0]):
         plotdata = testingPred.copy()
         plotdata[i,yr] = 0+i
         
-        plt.scatter(yearsall[yr],plotdata[i,yr],s=200,color=cc,clip_on=False,
-                    zorder=3,edgecolor='dimgrey',linewidth=0.5,label=label,
-                    alpha=conf)
+        plt.scatter(yearsall[yr],plotdata[i,yr],s=225,color=cc,clip_on=False,
+                    zorder=3,edgecolor=cc,linewidth=0.5,label=label,
+                    alpha=(conf-0.5)/(1-0.5))
     
-plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=7)
-plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI','CONTROL'],size=7)
+plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
+plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI','CONTROL'],size=11)
 plt.xlim([2035,2070])   
 plt.ylim([0,1])
-plt.xlabel(r'\textbf{Years - Global}')
+plt.xlabel(r'\textbf{Years}')
+plt.text(2071,0.5,r'\textbf{%s}' % (reg_name),ha='center',va='center',
+         color='dimgrey',rotation=270,fontsize=15)
 # plt.ylabel(r'\textbf{Simulations}')
 plt.tight_layout()
 
 plt.savefig(directoryfigure + 'Predictions_DetectSAI_LAND_%s.png' % reg_name,dpi=300)
+
+###############################################################################
+###############################################################################
+###############################################################################
+### Create observational plot
+def adjust_spines(ax, spines):
+    for loc, spine in ax.spines.items():
+        if loc in spines:
+            spine.set_position(('outward', 5))
+        else:
+            spine.set_color('none')  
+    if 'left' in spines:
+        ax.yaxis.set_ticks_position('left')
+    else:
+        ax.yaxis.set_ticks([])
+
+    if 'bottom' in spines:
+        ax.xaxis.set_ticks_position('bottom')
+    else:
+            ax.xaxis.set_ticks([]) 
+
+length = np.arange(yearsall.shape[0])
+
+fig = plt.figure()
+ax = plt.subplot(111)
+adjust_spines(ax, ['left', 'bottom'])
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.spines['left'].set_color('dimgrey')
+ax.spines['bottom'].set_color('dimgrey')
+ax.spines['left'].set_linewidth(2)
+ax.spines['bottom'].set_linewidth(2)
+ax.tick_params('both',length=4,width=2,which='major',color='dimgrey')
+ax.yaxis.grid(zorder=1,color='dimgrey',alpha=0.35,clip_on=False)
+
+plt.plot(yearsobs,obsconf[:,0],linewidth=3,color='teal',clip_on=False)
+plt.plot(yearsobs,obsconf[:,1],linewidth=3,color='maroon',clip_on=False)
+    
+plt.xticks(np.arange(1900,2016,20),map(str,np.arange(1900,2016,20)),size=7)
+plt.yticks(np.arange(0,1.1,0.1),map(str,np.round(np.arange(0,1.1,0.1),2)),size=7)
+plt.xlim([1900,2015])   
+plt.ylim([0,1])
+plt.xlabel(r'\textbf{Years - %s}' % reg_name)
+plt.ylabel(r'\textbf{Confidence}')
+plt.tight_layout()
+
+plt.savefig(directoryfigure + 'Observations_DetectSAI_LAND_%s.png' % reg_name,dpi=300)
 
 

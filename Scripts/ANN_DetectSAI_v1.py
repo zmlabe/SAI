@@ -55,7 +55,7 @@ modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
 variq = 'TREFHT'
-reg_name = 'Globe'
+reg_name = 'LowerArctic'
 timeper = 'historical'
 window = 0
 ###############################################################################
