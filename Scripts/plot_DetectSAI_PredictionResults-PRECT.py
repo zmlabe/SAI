@@ -18,17 +18,17 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ### Hyperparamters for files of the ANN model
 yearsall = np.arange(2035,2069+1,1)
 yearsobs = np.arange(1900,2015+1,1)
-variq = 'TREFHT'
+variq = 'PRECT'
 random_segment_seed = int(np.genfromtxt('/Users/zlabe/Documents/Research/GmstTrendPrediction/Data/SelectedSegmentSeed.txt',unpack=True))
 random_network_seed = 87750
-hiddensList = [[20,20]]
+hiddensList = [[10,10]]
 batch_size = 32
 lr_here = 0.001
 ridge_penalty = [1]
 iterations = [500]
 actFun = 'relu'
 NNType = 'ANN'
-reg_name = 'Arctic'
+reg_name = 'Amazon'
 monthlychoice = 'annual'
 seasons = monthlychoice
 land_only = True
@@ -109,10 +109,10 @@ ax.tick_params(axis='y',which='both',length=0)
 for i in range(testingPred.shape[0]):
     for yr in range(testingPred.shape[1]):
         if testingPred[i,yr] == 0:
-            cc = 'teal'
+            cc = 'saddlebrown'
             label = 'SAI'
         elif testingPred[i,yr] == 1:
-            cc = 'maroon'
+            cc = 'darkolivegreen'
             label = 'Control'
             
         if testingPred[i,yr] == 0:
@@ -137,7 +137,7 @@ plt.text(2071,0.5,r'\textbf{%s}' % (reg_name),ha='center',va='center',
 # plt.ylabel(r'\textbf{Simulations}')
 plt.tight_layout()
 
-plt.savefig(directoryfigure + 'Predictions_DetectSAI_LAND_%s.png' % reg_name,dpi=300)
+plt.savefig(directoryfigure + 'Predictions_DetectSAI_LAND_%s_PRECT.png' % reg_name,dpi=300)
 
 ###############################################################################
 ###############################################################################
@@ -173,8 +173,8 @@ ax.spines['bottom'].set_linewidth(2)
 ax.tick_params('both',length=4,width=2,which='major',color='dimgrey')
 ax.yaxis.grid(zorder=1,color='dimgrey',alpha=0.35,clip_on=False)
 
-plt.plot(yearsobs,obsconf[:,0],linewidth=3,color='teal',clip_on=False)
-plt.plot(yearsobs,obsconf[:,1],linewidth=3,color='maroon',clip_on=False)
+plt.plot(yearsobs,obsconf[:,0],linewidth=3,color='saddlebrown',clip_on=False)
+plt.plot(yearsobs,obsconf[:,1],linewidth=3,color='darkolivegreen',clip_on=False)
     
 plt.xticks(np.arange(1900,2016,20),map(str,np.arange(1900,2016,20)),size=7)
 plt.yticks(np.arange(0,1.1,0.1),map(str,np.round(np.arange(0,1.1,0.1),2)),size=7)
@@ -184,6 +184,6 @@ plt.xlabel(r'\textbf{Years - %s}' % reg_name)
 plt.ylabel(r'\textbf{Confidence}')
 plt.tight_layout()
 
-plt.savefig(directoryfigure + 'Observations_DetectSAI_LAND_%s.png' % reg_name,dpi=300)
+plt.savefig(directoryfigure + 'Observations_DetectSAI_LAND_%s_PRECT.png' % reg_name,dpi=300)
 
 

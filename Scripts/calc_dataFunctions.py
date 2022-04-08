@@ -259,6 +259,20 @@ def readFiles(variq,dataset,monthlychoice,numOfEns,lensalso,randomalso,ravelyear
                                               slicebaseARISEall,sliceshapeARISEall,
                                               addclimoARISEall,slicenanARISEall,
                                               takeEnsMeanARISEall,numOfEns,timeper) 
+    elif dataset == 'preInjection':
+        import calc_preInjection as WACOBS
+        directorydataWACOBS = '/Users/zlabe/Data/'
+        sliceshapeWACOBS = 4
+        slicenanWACOBS = 'nan'
+        ENSmean = 'nan'
+        addclimoWACOBS = True
+        slicebaseWACOBS = np.arange(2015,2034+1,1)
+        takeEnsMeanWACOBS = False
+        lat1,lon1,data,= WACOBS.read_preInjection(directorydataWACOBS,variq,
+                                              monthlychoice,
+                                              slicebaseWACOBS,sliceshapeWACOBS,
+                                              addclimoWACOBS,slicenanWACOBS,
+                                              takeEnsMeanWACOBS,numOfEns,timeper) 
     elif dataset == 'SMILE':
         if timeper == 'historical':
             import read_SMILE_historical as SM

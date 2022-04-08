@@ -54,8 +54,8 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'TREFHT'
-reg_name = 'LowerArctic'
+variq = 'PRECT'
+reg_name = 'narrowTropics'
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -569,21 +569,34 @@ for sis,singlesimulation in enumerate(datasetsingle):
         K.clear_session()
         
         ### Parameters
-        debug = True
-        NNType = 'ANN'
-        avgHalfChunk = 0
-        option4 = True
-        biasBool = False
-        hiddensList = [[25,25]]
-        ridge_penalty = [1]
-        actFun = 'relu'
-        
-        expList = [(0)]
-        expN = np.size(expList)
-        
-        iterations = [500] 
-        random_segment = True
-        foldsN = 1
+        if variq == 'TREFHT':
+            debug = True
+            NNType = 'ANN'
+            avgHalfChunk = 0
+            option4 = True
+            biasBool = False
+            hiddensList = [[25,25]]
+            ridge_penalty = [1]
+            actFun = 'relu'       
+            expList = [(0)]
+            expN = np.size(expList)  
+            iterations = [500] 
+            random_segment = True
+            foldsN = 1
+        elif variq == 'PRECT':
+            debug = True
+            NNType = 'ANN'
+            avgHalfChunk = 0
+            option4 = True
+            biasBool = False
+            hiddensList = [[10,10]]
+            ridge_penalty = [1]
+            actFun = 'relu'       
+            expList = [(0)]
+            expN = np.size(expList)  
+            iterations = [500] 
+            random_segment = True
+            foldsN = 1
         
         for avgHalfChunk in (0,): 
             session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,

@@ -1,19 +1,19 @@
 """
-Function reads in both ARISE and CONTROL
+Function reads data for 2015-2034 for the pre-injection
 
 Notes
 -----
     Author : Zachary Labe
-    Date   : 4 April 2022
+    Date   : 8 April 2022
 
 Usage
 -----
-    [1] read_ARISEtogether(directory,vari,sliceperiod,slicebase,sliceshape,addclimo,slicenan,takeEnsMean,numOfEns,timeper)
+    [1] read_preInjection(directory,vari,sliceperiod,slicebase,sliceshape,addclimo,slicenan,takeEnsMean,numOfEns,timeper)
 """
 
-def read_ARISEtogether(directory,vari,monthlychoice,slicebase,sliceshape,addclimo,slicenan,takeEnsMean,numOfEns,timeper):
+def read_preInjection(directory,vari,monthlychoice,slicebase,sliceshape,addclimo,slicenan,takeEnsMean,numOfEns,timeper):
     """
-    Function reads monthly data from all SAI and WACCM6 data
+    Function reads monthly data from pre-injection WACCM6
 
     Parameters
     ----------
@@ -51,21 +51,17 @@ def read_ARISEtogether(directory,vari,monthlychoice,slicebase,sliceshape,addclim
 
     Usage
     -----
-    read_ARISEtogether(directory,vari,sliceperiod,slicebase,
+    read_preInjection(directory,vari,sliceperiod,slicebase,
                     sliceshape,addclimo,slicenan,takeEnsMean,numOfEns,timeper)
     """
-    print('\n>>>>>>>>>> STARTING read_ARISEtogether function!')
+    print('\n>>>>>>>>>> STARTING read_preInjection function!')
 
     ### Import modules
     import numpy as np
-    from netCDF4 import Dataset
-    import calc_Utilities as UT
     import read_WACCM as WAC
-    import read_ARISE as ARI
     
     ### Parameters 
     directorydataWAC = '/Users/zlabe/Data/SAI/monthly/'
-    directorydataARI = '/Users/zlabe/Data/SAI/monthly/'
     
     ### Read in both large ensembles from ARISE
     lat1,lon1,waccm,ENSmeanWAC = WAC.read_WACCM(directorydataWAC,vari,
@@ -73,25 +69,23 @@ def read_ARISEtogether(directory,vari,monthlychoice,slicebase,sliceshape,addclim
                                                   slicebase,sliceshape,
                                                   addclimo,slicenan,
                                                   takeEnsMean) 
-    lat1,lon1,arise,ENSmeanARI = ARI.read_ARISE(directorydataARI,vari,
-                                          monthlychoice,
-                                          slicebase,sliceshape,
-                                          addclimo,slicenan,
-                                          takeEnsMean) 
+    ### Look for years before injection
+    yearsWAC = np.arange(2015,2069+1,1)
+    yearsqw = np.where((yearsWAC < 2035))[0]
 
     ### Combine data 
-    models = np.asarray([arise[:,:,:,:],waccm[:,-arise.shape[1]:,:,:]]) # only for 2035-2069
+    preinj = waccm[:,yearsqw,:,:] # only for 2015-2034
 
-    print('\n\nShape of output FINAL = ', models.shape,[[models.ndim]])
-    print('>>>>>>>>>> ENDING read_ARISEtogether function!')    
-    return lat1,lon1,models 
+    print('\n\nShape of output FINAL = ', preinj.shape,[[preinj.ndim]])
+    print('>>>>>>>>>> ENDING read_preInjection function!')    
+    return lat1,lon1,preinj
 
 # ### Test functions - do not use!
 # import numpy as np
 # import matplotlib.pyplot as plt
 # import calc_Utilities as UT
 # directory = '/Users/zlabe/Data/'
-# vari = 'SST'
+# vari = 'TREFHT'
 # sliceperiod = 'annual'
 # slicebase = np.arange(2035,2069+1,1)
 # sliceshape = 4
@@ -100,7 +94,7 @@ def read_ARISEtogether(directory,vari,monthlychoice,slicebase,sliceshape,addclim
 # takeEnsMean = False
 # timeper = 'historical'
 # numOfEns = 10
-# lat,lon,var = read_ARISEtogether(directory,vari,sliceperiod,slicebase,
+# lat,lon,var = read_preInjection(directory,vari,sliceperiod,slicebase,
 #                                       sliceshape,addclimo,slicenan,
 #                                       takeEnsMean,numOfEns,timeper)
 # lon2,lat2 = np.meshgrid(lon,lat)
