@@ -1060,7 +1060,7 @@ def regions(name):
     elif name == 'NAprop':
         lat_bounds = (10, 80)
         lon_bounds = (180, 360)      
-    elif name == 'CentralAfrica':
+    elif name == 'NorthAfrica':
         lat_bounds = (-10, 30)
         lon_bounds = (0,40)         
     elif name == 'Indonesia':
@@ -1068,7 +1068,7 @@ def regions(name):
         lon_bounds = (95,140)     
     elif name == 'SEAsia':
         lat_bounds = (15,35)
-        lon_bounds = (90,115)      
+        lon_bounds = (90,120)      
     elif name == 'Amazon':
         lat_bounds = (-10,9)
         lon_bounds = (280,330) 
