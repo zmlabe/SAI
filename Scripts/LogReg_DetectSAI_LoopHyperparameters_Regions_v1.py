@@ -47,7 +47,7 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'TREFHT'
+variq = 'PRECT'
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -799,13 +799,13 @@ for rr in range(len(reg_nameq)):
     valIndices_rr.append(valIndices_ll)  
     ############################################
     
-    np.save(directoryoutput + saveSeedsq + '_SegmentSeeds.npy',segmentSeed_rr)
-    np.save(directoryoutput + saveSeedsq + '_NetworkSeeds.npy',networkSeed_rr)
-    np.save(directoryoutput + saveAccuracyq + '_TrainAcc.npy',TrainAccuracy_rr)
-    np.save(directoryoutput + saveAccuracyq + '_TestAcc.npy',TestAccuracy_rr)
-    np.save(directoryoutput + saveAccuracyq + '_ValAcc.npy',ValAccuracy_rr)
-    np.save(directoryoutput + saveLatsq + '_Latitudes.npy',lats_rr)
-    np.save(directoryoutput + saveLonsq + '_Longitudes.npy',lons_rr)
-    np.save(directoryoutput + saveIndicesq + '_TrainIndices.npy',trainIndices_rr)
-    np.save(directoryoutput + saveIndicesq + '_TestIndices.npy',testIndices_rr)
-    np.save(directoryoutput + saveIndicesq + '_ValIndices.npy',valIndices_rr)
+    np.save(directoryoutput + saveSeedsq + '_SegmentSeeds.npy',segmentSeed_ll)
+    np.save(directoryoutput + saveSeedsq + '_NetworkSeeds.npy',networkSeed_ll)
+    np.save(directoryoutput + saveAccuracyq + '_TrainAcc.npy',TrainAccuracy_ll)
+    np.save(directoryoutput + saveAccuracyq + '_TestAcc.npy',TestAccuracy_ll)
+    np.save(directoryoutput + saveAccuracyq + '_ValAcc.npy',ValAccuracy_ll)
+    np.save(directoryoutput + saveLatsq + '_Latitudes.npy',lats_ll)
+    np.save(directoryoutput + saveLonsq + '_Longitudes.npy',lons_ll)
+    np.save(directoryoutput + saveIndicesq + '_TrainIndices.npy',trainIndices_ll)
+    np.save(directoryoutput + saveIndicesq + '_TestIndices.npy',testIndices_ll)
+    np.save(directoryoutput + saveIndicesq + '_ValIndices.npy',valIndices_ll)
