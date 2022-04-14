@@ -22,11 +22,9 @@ import tensorflow.keras as keras
 import tensorflow as tf
 import pandas as pd
 import random
-import cmocean as cmocean
 import calc_Utilities as UT
 import calc_dataFunctions as df
 import calc_Stats as dSS
-import calc_LRPclass_Detect as LRP
 from sklearn.metrics import mean_squared_error,mean_absolute_error
 
 import warnings
@@ -50,8 +48,9 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'TREFHT'
-reg_name = 'Globe'
+variq = 'PRECT'
+reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
+labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -95,19 +94,6 @@ ensTypeExperi = 'ENS'
 ###############################################################################
 ###############################################################################
 ###############################################################################
-### Select how to save files
-if land_only == True:
-    saveData = seasons[0] + '_LAND' + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-elif ocean_only == True:
-    saveData = seasons[0] + '_OCEAN' + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-else:
-    saveData = seasons[0] + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-print('*Filename == < %s >' % saveData) 
-
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
 ### Create sample class labels for each model for my own testing
 ### Appends a twin set of classes for the random noise class 
 if seasons != 'none':
@@ -124,15 +110,29 @@ if seasons != 'none':
 ###############################################################################
 ###############################################################################     
 ### Begin ANN and the entire script
-for seas in range(len(seasons)):
+for seas in range(len(reg_nameq)):
     ###############################################################################
     ###############################################################################
     ###############################################################################
     ### ANN preliminaries
     simuqq = datasetsingle[0]
-    monthlychoice = seasons[seas]
+    monthlychoice = seasons[0]
+    reg_name = reg_nameq[seas]
+    ###############################################################################
+    ###############################################################################
+    ###############################################################################
+    ###############################################################################
+    ### Select how to save files
+    if land_only == True:
+        saveData = seasons[0] + '_LAND' + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
+    elif ocean_only == True:
+        saveData = seasons[0] + '_OCEAN' + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
+    else:
+        saveData = seasons[0] + '_GCMarise_YearsSinceSAI' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
+    print('*Filename == < %s >' % saveData) 
+
     lat_bounds,lon_bounds = UT.regions(reg_name)
-    directoryfigure = '/Users/zlabe/Desktop/SAI/detectSAI/'
+    directoryfigure = '/Users/zlabe/Desktop/SAI/yearSinceSAI/'
     experiment_result = pd.DataFrame(columns=['actual iters','hiddens','cascade',
                                               'RMSE Train','RMSE Test',
                                               'ridge penalty','zero mean',
@@ -155,11 +155,11 @@ for seas in range(len(seasons)):
     
     ### Remove the annual mean? True to subtract it from dataset ##########
     if rm_annual_mean == True:
-        directoryfigure = '/Users/zlabe/Desktop/SAI/detectSAI/'
+        directoryfigure = '/Users/zlabe/Desktop/SAI/yearSinceSAI/'
     
     ### Rove the ensemble mean? True to subtract it from dataset ##########
     if rm_ensemble_mean == True:
-        directoryfigure = '/Users/zlabe/Desktop/SAI/detectSAI/'
+        directoryfigure = '/Users/zlabe/Desktop/SAI/yearSinceSAI/'
     
     ### Split the data into training and testing sets? value of 1 will use all 
     ### data as training
@@ -720,19 +720,19 @@ for seas in range(len(seasons)):
     ### Observations
     obsout = YpredObs
 
-    # ### Save the output 
-    # directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-    # np.savetxt(directoryoutput + 'trainingEnsIndices_' + saveData + '.txt',trainIndices)
-    # np.savetxt(directoryoutput + 'testingEnsIndices_' + saveData + '.txt',testIndices)
+    ### Save the output 
+    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI/'
+    np.savetxt(directoryoutput + 'trainingEnsIndices_' + saveData + '.txt',trainIndices)
+    np.savetxt(directoryoutput + 'testingEnsIndices_' + saveData + '.txt',testIndices)
+    np.savetxt(directoryoutput + 'validationEnsIndices_' + saveData + '.txt',valIndices)
     
-    # np.savetxt(directoryoutput + 'trainingTrueLabels_' + saveData + '.txt',classesltrain)
-    # np.savetxt(directoryoutput + 'testingTrueLabels_' + saveData + '.txt',classesltest)
+    np.savetxt(directoryoutput + 'trainingTrueLabels_' + saveData + '.txt',classesltrain)
+    np.savetxt(directoryoutput + 'testingTrueLabels_' + saveData + '.txt',classesltest)
+    np.savetxt(directoryoutput + 'validationTrueLabels_' + saveData + '.txt',classeslval)
     
-    # np.savetxt(directoryoutput + 'trainingPredictedLabels_' + saveData + '.txt',indextrain)
-    # np.savetxt(directoryoutput + 'testingPredictedLabels_' + saveData + '.txt',indextest)
-    
-    # ### Save predictions for observations
-    # np.savetxt(directoryoutput + 'obsConfid_' + saveData + '.txt',obsout)
+    np.savetxt(directoryoutput + 'trainingPredictions_' + saveData + '.txt',trainingout)
+    np.savetxt(directoryoutput + 'testingPredictions_' + saveData + '.txt',testingout)
+    np.savetxt(directoryoutput + 'validationPredictions_' + saveData + '.txt',valout)
 
     ### See more more details
     model.layers[0].get_config()

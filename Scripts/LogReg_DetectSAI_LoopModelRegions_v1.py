@@ -41,7 +41,7 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ###############################################################################
 ### Data preliminaries 
 directorydata = '/Users/zlabe/Data/SAI/'
-directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/Loop/Models/'
+directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/detectSAI/Loop/Models/'
 ###############################################################################
 ###############################################################################
 modelGCMs = ['ARISE','WACCM']
@@ -797,3 +797,8 @@ for seas in range(len(reg_nameq)):
             
     ### Set nans for ocean
     mapsweights[np.where(mapsweights == 0.)] = np.nan
+    
+    ### Save weights after doing weights*input
+    np.save(directoryoutput + 'WeightsInputs-LOGREG_' + saveData + '.npy',mapsweights)
+    np.save(directoryoutput + 'Latitudes-LOGREG_' + saveData + '.npy',np.asarray(lats))
+    np.save(directoryoutput + 'Longitudes-LOGREG_' + saveData + '.npy',np.asarray(lons))
