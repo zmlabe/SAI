@@ -171,6 +171,7 @@ for seas in range(len(reg_nameq)):
     ### Read in model and observational/reanalysis data
     def read_primary_dataset(variq,dataset,numOfEns,lensalso,randomalso,ravelyearsbinary,ravelbinary,shuffletype,lat_bounds=lat_bounds,lon_bounds=lon_bounds):
         data,lats,lons = df.readFiles(variq,dataset,monthlychoice,numOfEns,lensalso,randomalso,ravelyearsbinary,ravelbinary,shuffletype,timeper)
+        data = data[np.newaxis,:,:,:,:] # add model dimension
         datar,lats,lons = df.getRegion(data,lats,lons,lat_bounds,lon_bounds)
         print('\nOur dataset: ',dataset,' is shaped',data.shape)
         return datar,lats,lons
@@ -698,13 +699,13 @@ for seas in range(len(reg_nameq)):
     
     plt.figure()
     plt.plot(np.arange(0,34+1,1),color='k',linestyle='--')
-    plt.plot(testingout.reshape(2,35).transpose())
+    plt.plot(testingout.transpose())
     plt.title('testing data')
     plt.xlim([0,35])
     plt.ylim([0,35])
     plt.figure()
     plt.plot(np.arange(0,34+1,1),color='k',linestyle='--')
-    plt.plot(valout.reshape(4,35).transpose())
+    plt.plot(valout.reshape(2,35).transpose())
     plt.title('validation data')   
     plt.xlim([0,35])
     plt.ylim([0,35])
