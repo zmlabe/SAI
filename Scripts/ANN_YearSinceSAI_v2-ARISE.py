@@ -43,6 +43,7 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ###############################################################################
 ### Data preliminaries 
 directorydata = '/Users/zlabe/Data/SAI/'
+directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI/ONLYARISE/Loop/'
 ###############################################################################
 ###############################################################################
 modelGCMs = ['ARISE']
@@ -50,6 +51,9 @@ datasetsingle = ['ARISE']
 seasons = ['annual']
 variq = 'TREFHT'
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
+ridge_penaltyq = np.genfromtxt(directoryModels + 'L2_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True)
+random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
+random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
 labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
 window = 0
@@ -406,7 +410,7 @@ for seas in range(len(reg_nameq)):
         ### Callbacks
         time_callback = TimeHistory()
         early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss',
-                                                       patience=20,
+                                                       patience=10,
                                                        verbose=1,
                                                        mode='auto',
                                                        restore_best_weights=True)
@@ -507,27 +511,16 @@ for seas in range(len(reg_nameq)):
     ###############################################################################
     ###############################################################################
     ### Parameters
-    if variq == 'TREFHT':
-        debug = True
-        NNType = 'ANN_regress'
-        option4 = True
-        biasBool = False
-        hiddensList = [[10,10]]
-        ridge_penalty = [0.5]
-        actFun = 'relu'       
-        iterations = [500] 
-        random_segment = True
-        foldsN = 1
-    elif variq == 'PRECT':
-        debug = True
-        NNType = 'ANN_regress'
-        option4 = True
-        biasBool = False
-        hiddensList = [[10,10]]
-        ridge_penalty = [2]
-        actFun = 'relu'       
-        iterations = [500] 
-        random_segment = True
+    debug = True
+    NNType = 'ANN_regress'
+    option4 = True
+    biasBool = False
+    hiddensList = [[10,10]]
+    ridge_penalty = [ridge_penaltyq[seas]]
+    actFun = 'relu'       
+    iterations = [500] 
+    random_segment = True
+    foldsN = 1
     
     session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
                                   inter_op_parallelism_threads=1)
@@ -599,8 +592,7 @@ for seas in range(len(reg_nameq)):
     ### Loop over folds
     K.clear_session()
     #---------------------------
-    random_segment_seed = int(np.genfromtxt('/Users/zlabe/Documents/Research/SolarIntervention/Data/SelectedSegmentSeed.txt',unpack=True))
-    # random_segment_seed = None
+    random_segment_seed = random_segment_seedq[seas]
     #---------------------------
     Xtrain,Ytrain,Xtest,Ytest,Xval,Yval,Xtrain_shape,Xtest_shape,Xval_shape,testIndices,trainIndices,valIndices = segment_data(data,classesl,ensTypeExperi,segment_data_factor)
 
@@ -613,7 +605,7 @@ for seas in range(len(reg_nameq)):
     Xmean, Xstd = stdVals      
 
     #---------------------------
-    random_network_seed = 87750
+    random_network_seed = random_network_seedq[seas]
     #---------------------------
 
     # Create and train network
