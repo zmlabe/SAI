@@ -4,7 +4,7 @@ Using explainable AI to identify regional climate signals in response to stratos
 ###### Under construction... ```[Python 3.7]```
 
 ## Contact
-Zachary Labe - [Research Website](http://sites.uci.edu/zlabe/) - [@ZLabe](https://twitter.com/ZLabe)
+Zachary Labe - [Research Website](https://zacklabe.com/) - [@ZLabe](https://twitter.com/ZLabe)
 
 ## Description
 + ```Scripts/```: Main [Python](https://www.python.org/) scripts/functions used in data analysis and plotting
