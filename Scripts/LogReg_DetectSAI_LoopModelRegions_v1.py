@@ -47,15 +47,15 @@ directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/detect
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'PRECT'
+variq = 'TREFHT'
 timeper = 'historical'
 window = 0
 ###############################################################################
 ###############################################################################
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 ridge_penaltyq = np.genfromtxt(directoryModels + 'L2_LogReg_DetectSAI_%s.txt' % variq,unpack=True)
-random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
-random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
+# random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
+# random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
 ###############################################################################
 ###############################################################################
 land_only = True
@@ -565,7 +565,7 @@ for seas in range(len(reg_nameq)):
 ###############################################################################
     K.clear_session()
     #---------------------------
-    random_segment_seed = random_segment_seedq[seas]
+    random_segment_seed = 16159
     #---------------------------
     Xtrain,Ytrain,Xtest,Ytest,Xval,Yval,Xtrain_shape,Xtest_shape,Xval_shape,testIndices,trainIndices,valIndices = segment_data(data,classesl,ensTypeExperi,segment_data_factor)
 
@@ -578,7 +578,7 @@ for seas in range(len(reg_nameq)):
     Xmean, Xstd = stdVals      
 
     #---------------------------
-    random_network_seed = random_network_seedq[seas]
+    random_network_seed = 87750
     #---------------------------
 
     # Create and train network
@@ -727,7 +727,7 @@ for seas in range(len(reg_nameq)):
     yearspre = np.arange(2015,2034+1,1)
     
     ### Save the output 
-    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
     np.savetxt(directoryoutput + 'trainingEnsIndices_' + saveData + '.txt',trainIndices)
     np.savetxt(directoryoutput + 'testingEnsIndices_' + saveData + '.txt',testIndices)
     

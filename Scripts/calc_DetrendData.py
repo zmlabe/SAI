@@ -9,8 +9,8 @@ Notes
     
 Usage
 -----
-    detrendData(datavar,timeperiod)
-    detrendDataR(datavar,timeperiod)
+    detrendData(datavar,level,timeperiod)
+    detrendDataR(datavar,level,timeperiod)
 """
 
 def detrendData(datavar,level,timeperiod):
@@ -45,19 +45,17 @@ def detrendData(datavar,level,timeperiod):
     
     ### Detrend data array
     if level == 'surface':
-        x = np.arange(datavar.shape[2])
-        
-        slopes = np.empty((datavar.shape[0],datavar.shape[1],datavar.shape[3],
-                          datavar.shape[4]))
-        intercepts = np.empty((datavar.shape[0],datavar.shape[1],datavar.shape[3],
-                      datavar.shape[4]))
-        for ens in range(datavar.shape[0]):
-            print('-- Detrended data for model -- #%s!' % (ens+1))
-            for mo in range(datavar.shape[1]):
-                for i in range(datavar.shape[3]):
-                    for j in range(datavar.shape[4]):
-                        mask = np.isfinite(datavar[ens,mo,:,i,j])
-                        y = datavar[ens,mo,:,i,j]
+        if datavar.ndim == 4:
+            x = np.arange(datavar.shape[1])
+            
+            slopes = np.empty((datavar.shape[0],datavar.shape[2],datavar.shape[3]))
+            intercepts = np.empty((datavar.shape[0],datavar.shape[2],datavar.shape[3]))
+            for ens in range(datavar.shape[0]):
+                print('-- Detrended data for ensemble -- #%s!' % (ens+1))
+                for i in range(datavar.shape[2]):
+                    for j in range(datavar.shape[3]):
+                        mask = np.isfinite(datavar[ens,:,i,j])
+                        y = datavar[ens,:,i,j]
                         
                         if np.sum(mask) == y.shape[0]:
                             xx = x
@@ -67,21 +65,59 @@ def detrendData(datavar,level,timeperiod):
                             yy = y[mask]
                         
                         if np.isfinite(np.nanmean(yy)):
-                            slopes[ens,mo,i,j],intercepts[ens,mo,i,j], \
+                            slopes[ens,i,j],intercepts[ens,i,j], \
                             r_value,p_value,std_err = sts.linregress(xx,yy)
                         else:
-                            slopes[ens,mo,i,j] = np.nan
-                            intercepts[ens,mo,i,j] = np.nan
-        print('Completed: Detrended data for each grid point!')
-                            
-        datavardt = np.empty(datavar.shape)
-        for ens in range(datavar.shape[0]):
-            for yr in range(datavar.shape[1]):
-                for mo in range(datavar.shape[2]):
-                    datavardt[ens,yr,mo,:,:] = datavar[ens,yr,mo,:,:] - \
-                                        (slopes[ens,yr,:,:]*x[mo] + \
-                                         intercepts[ens,yr,:,:])
+                            slopes[ens,i,j] = np.nan
+                            intercepts[ens,i,j] = np.nan
+            print('Completed: Detrended data for each grid point!')
                                 
+            datavardt = np.empty(datavar.shape)
+            for ens in range(datavar.shape[0]):
+                for yr in range(datavar.shape[1]):
+                    datavardt[ens,yr,:,:] = datavar[ens,yr,:,:] - \
+                                        (slopes[ens,:,:]*x[yr] + \
+                                         intercepts[ens,:,:])
+        elif datavar.ndim == 5:
+            x = np.arange(datavar.shape[2])
+            
+            slopes = np.empty((datavar.shape[0],datavar.shape[1],datavar.shape[3],
+                              datavar.shape[4]))
+            intercepts = np.empty((datavar.shape[0],datavar.shape[1],datavar.shape[3],
+                          datavar.shape[4]))
+            for ens in range(datavar.shape[0]):
+                print('-- Detrended data for model -- #%s!' % (ens+1))
+                for mo in range(datavar.shape[1]):
+                    for i in range(datavar.shape[3]):
+                        for j in range(datavar.shape[4]):
+                            mask = np.isfinite(datavar[ens,mo,:,i,j])
+                            y = datavar[ens,mo,:,i,j]
+                            
+                            if np.sum(mask) == y.shape[0]:
+                                xx = x
+                                yy = y
+                            else:
+                                xx = x[mask]
+                                yy = y[mask]
+                            
+                            if np.isfinite(np.nanmean(yy)):
+                                slopes[ens,mo,i,j],intercepts[ens,mo,i,j], \
+                                r_value,p_value,std_err = sts.linregress(xx,yy)
+                            else:
+                                slopes[ens,mo,i,j] = np.nan
+                                intercepts[ens,mo,i,j] = np.nan
+            print('Completed: Detrended data for each grid point!')
+                                
+            datavardt = np.empty(datavar.shape)
+            for ens in range(datavar.shape[0]):
+                for yr in range(datavar.shape[1]):
+                    for mo in range(datavar.shape[2]):
+                        datavardt[ens,yr,mo,:,:] = datavar[ens,yr,mo,:,:] - \
+                                            (slopes[ens,yr,:,:]*x[mo] + \
+                                             intercepts[ens,yr,:,:])
+    ###########################################################################
+    ###########################################################################
+    ###########################################################################                                
     elif level == 'profile':
         x = np.arange(datavar.shape[1])
         
@@ -140,7 +176,7 @@ def detrendDataR(datavar,level,timeperiod):
         Height of variable (surface or profile)
     timeperiod : string
         daily or monthly
-    
+    detrendData(datavar,timeperiod)
     Returns
     -------
     datavardt : 4d numpy array or 5d numpy array 

@@ -1028,7 +1028,7 @@ def regions(name):
         lat_bounds = (-90.,-50.)
         lon_bounds = (0., 360.)  
     elif name == 'Antarctic':
-        lat_bounds = (-90.,-67.)
+        lat_bounds = (-90.,-65.)
         lon_bounds = (0., 360.) 
     elif name == 'LowerAntarctic':
         lat_bounds = (-90.,-60.)

@@ -15,8 +15,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid
-import palettable.cubehelix as cm
-import palettable.scientific.sequential as sss
 import cmocean as cmocean
 import calc_Utilities as UT
 import calc_dataFunctions as df

@@ -34,10 +34,6 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 ### Prevent tensorflow 2.+ deprecation warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-### Plotting defaults 
-plt.rc('text',usetex=True)
-plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']}) 
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -52,8 +48,8 @@ seasons = ['annual']
 variq = 'TREFHT'
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 ridge_penaltyq = np.genfromtxt(directoryModels + 'L2_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True)
-random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
-random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
+# random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
+# random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_ANN_YearsSinceSAI_%s_corr.txt' % variq,unpack=True).astype(int)
 labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
 window = 0
@@ -592,7 +588,7 @@ for seas in range(len(reg_nameq)):
     ### Loop over folds
     K.clear_session()
     #---------------------------
-    random_segment_seed = random_segment_seedq[seas]
+    random_segment_seed = 24120
     #---------------------------
     Xtrain,Ytrain,Xtest,Ytest,Xval,Yval,Xtrain_shape,Xtest_shape,Xval_shape,testIndices,trainIndices,valIndices = segment_data(data,classesl,ensTypeExperi,segment_data_factor)
 
@@ -605,7 +601,7 @@ for seas in range(len(reg_nameq)):
     Xmean, Xstd = stdVals      
 
     #---------------------------
-    random_network_seed = random_network_seedq[seas]
+    random_network_seed = 87750
     #---------------------------
 
     # Create and train network

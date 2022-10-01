@@ -47,7 +47,7 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'PRECT'
+variq = 'TREFHT'
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -107,7 +107,7 @@ if seasons != 'none':
 ### Begin ANN and the entire script - loop through these parameters
 ridge_penaltyq = [[0.01],[0.1],[0.25],[0.5],[0.75],[1],[1.5],[5]]
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
-NCOMBOS = 10
+NCOMBOS = 20
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -720,7 +720,7 @@ for rr in range(len(reg_nameq)):
             print('Accuracy Validation == ',accval)
             
             ### Save the output 
-            directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/Loop/'
+            directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI/Loop/'
                
             ## Define variable for analysis
             print('\n\n------------------------')

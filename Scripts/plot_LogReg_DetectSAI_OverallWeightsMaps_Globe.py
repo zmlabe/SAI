@@ -24,11 +24,6 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 
 ###############################################################################
 ###############################################################################
-###############################################################################
-### Data preliminaries 
-directorydata = '/Users/zlabe/Data/SAI/'
-###############################################################################
-###############################################################################
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
@@ -69,7 +64,7 @@ ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,5]
 reg_nameq = ['Globe']
 NCOMBOS = 10
 directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI/'
-directoryfigure = '/Users/zlabe/Desktop/SAI/detectSAI/'
+directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
 
 ### Read in weights for temperature
 latshape = 96
@@ -131,13 +126,13 @@ weights_p_con = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lons
 
 ### Prepare classes for composites:
 labels_t_sai = truelabels_t.squeeze().reshape(2,35)[0]
-labels_t_con = truelabels_t.squeeze().reshape(2,35)[0]
-labels_p_sai = truelabels_p.squeeze().reshape(2,35)[1]
+labels_t_con = truelabels_t.squeeze().reshape(2,35)[1]
+labels_p_sai = truelabels_p.squeeze().reshape(2,35)[0]
 labels_p_con = truelabels_p.squeeze().reshape(2,35)[1]
 
 predss_t_sai = predlabels_t.squeeze().reshape(2,35)[0]
-predss_t_con = predlabels_t.squeeze().reshape(2,35)[0]
-predss_p_sai = predlabels_p.squeeze().reshape(2,35)[1]
+predss_t_con = predlabels_t.squeeze().reshape(2,35)[1]
+predss_p_sai = predlabels_p.squeeze().reshape(2,35)[0]
 predss_p_con = predlabels_p.squeeze().reshape(2,35)[1]
 
 

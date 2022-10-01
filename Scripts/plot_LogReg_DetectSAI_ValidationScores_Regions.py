@@ -64,9 +64,9 @@ if seasons != 'none':
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
 ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,5]
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
-NCOMBOS = 10
-directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/Loop/'
-directoryfigure = '/Users/zlabe/Desktop/SAI/ValidationScores_DetectSAI/'
+NCOMBOS = 20
+directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI/Loop/'
+directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
 
 ### Read in hyperparameters
 segmentseeds = np.empty((len(reg_nameq),len(ridge_penaltyq),NCOMBOS))
@@ -104,7 +104,7 @@ for rr in range(len(reg_nameq)):
 ###############################################################################
 ###############################################################################
 ### Graph for accuracy
-labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
+labels = ['Globe','N. Hemisphere','S. Hemisphere','Arctic','Antarctic','Tropics','Southeast Asia','Central Africa','Amazon']
 
 def adjust_spines(ax, spines):
     for loc, spine in ax.spines.items():
@@ -180,6 +180,9 @@ for plo in range(len(labels)):
         plt.xticks(np.arange(0,7+1,1),list(map(str,np.array(ridge_penaltyq))),fontsize=6)
     else:
         ax.axes.xaxis.set_ticklabels([])
+        
+    if plo == 7:
+        plt.xlabel(r'\textbf{Ridge Penalty (L$_{2}$) -- %s}' % variq,color='k',fontsize=6)
     
         
     plt.text(3.65,102.5,r'\textbf{%s}' % labels[plo],fontsize=11,color='dimgrey',
@@ -235,7 +238,7 @@ for i in range(len(reg_nameq)):
     valindices_model[i,:] = valindices[i,whichL2[i],whichSeed[i]]
     
 ### Save output
-directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/Loop/Models/'
+directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI/Loop/Models/'
 np.savetxt(directoryModels + 'L2_LogReg_DetectSAI_%s.txt' % variq,l2_model)
 np.savetxt(directoryModels + 'SegSeed_LogReg_DetectSAI_%s.txt' % variq,segSeed_model)
 np.savetxt(directoryModels + 'NetSeed_LogReg_DetectSAI_%s.txt' % variq,netSeed_model)

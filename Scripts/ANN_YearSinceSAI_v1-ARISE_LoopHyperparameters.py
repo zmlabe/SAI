@@ -50,7 +50,7 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE']
 datasetsingle = ['ARISE']
 seasons = ['annual']
-variq = 'TREFHT'
+variq = 'PRECT'
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
@@ -95,7 +95,7 @@ ensTypeExperi = 'ENS'
 ###############################################################################
 ###############################################################################
 ridge_penaltyq = [[0.01],[0.1],[0.25],[0.5],[0.75],[1],[1.5],[2],[3],[5],[10]]
-NCOMBOS = 10
+NCOMBOS = 20
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -548,7 +548,7 @@ for rr in range(len(reg_nameq)):
                 NNType = 'ANN_regress'
                 option4 = True
                 biasBool = False
-                hiddensList = [[10,10]]
+                hiddensList = [[5]]
                 ridge_penalty = ridge_penaltyq[ll]
                 actFun = 'relu'       
                 iterations = [500] 
@@ -559,11 +559,14 @@ for rr in range(len(reg_nameq)):
                 NNType = 'ANN_regress'
                 option4 = True
                 biasBool = False
-                hiddensList = [[10,10]]
+                hiddensList = [[5]]
                 ridge_penalty = ridge_penaltyq[ll]
                 actFun = 'relu'       
                 iterations = [500] 
                 random_segment = True
+            # hiddenfolder = 'Hiddens_10x10'
+            hiddenfolder = 'Hiddens_5'
+            # hiddenfolder = 'Hiddens_5x5'
             
             session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
                                           inter_op_parallelism_threads=1)
@@ -739,8 +742,9 @@ for rr in range(len(reg_nameq)):
             obsout = YpredObs
         
             ### Save the output 
-            directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI/ONLYARISE/Loop/'
-           
+            directoryoutput1 = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI/ONLYARISE/Loop/'
+            directoryoutput = directoryoutput1 + '%s/' % hiddenfolder
+            
             ## Define variable for analysis
             print('\n\n------------------------')
             print(variq,'= Variable!')
