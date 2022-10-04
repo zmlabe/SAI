@@ -305,3 +305,8 @@ cbar.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(bottom=0.14)
 plt.savefig(directoryfigure + 'Map_TemporalSNR_TREFHT.png',dpi=300)
+
+### Save composite for figure
+directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
+np.savez(directoryoutput + 'TREFHT-SAI_period2SNR.npz',
+         snr=snr2_arise,lat=lats,lon=lons)

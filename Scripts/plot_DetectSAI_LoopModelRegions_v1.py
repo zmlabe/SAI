@@ -19,7 +19,7 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 ### Hyperparamters for files of the ANN model
 yearsall = np.arange(2035,2069+1,1)
 yearsobs = np.arange(1900,2015+1,1)
-variq = 'TREFHT'
+variq = 'PRECT'
 if variq == 'TREFHT':
     cc1 = 'teal'
     cc2 = 'maroon'
@@ -49,8 +49,8 @@ for rr in range(len(reg_nameq)):
     print('*Filename == < %s >' % saveData) 
                       
     ### Directories to save files
-    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/'
-    directoryfigure = '/Users/zlabe/Desktop/SAI/detectSAI/'
+    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
+    directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/DetectSAI_Individual/'
     
     ###############################################################################
     ###############################################################################
@@ -129,7 +129,7 @@ for rr in range(len(reg_nameq)):
                         alpha=(conf-0.5)/(1-0.5))
         
     plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
-    plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI','CONTROL'],size=11)
+    plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI','SSP2-4.5'],size=11)
     plt.xlim([2035,2070])   
     plt.ylim([0,1])
     plt.xlabel(r'\textbf{Years}')
@@ -138,7 +138,7 @@ for rr in range(len(reg_nameq)):
     # plt.ylabel(r'\textbf{Simulations}')
     plt.tight_layout()
     
-    plt.savefig(directoryfigure + 'Predictions_DetectSAI_LAND_%s_TREFHT_LOGREG_%s.png' % (variq,reg_name),dpi=300)
+    plt.savefig(directoryfigure + 'Predictions_DetectSAI_LAND_%s_LOGREG_%s.png' % (variq,reg_name),dpi=300)
     
     ###############################################################################
     ###############################################################################
@@ -185,6 +185,6 @@ for rr in range(len(reg_nameq)):
     plt.ylabel(r'\textbf{Confidence}')
     plt.tight_layout()
     
-    plt.savefig(directoryfigure + 'Observations_DetectSAI_LAND_%s_TREFHT_LOGREG_%s.png' % (variq,reg_name),dpi=300)
+    plt.savefig(directoryfigure + 'Observations_DetectSAI_LAND_%s_LOGREG_%s.png' % (variq,reg_name),dpi=300)
     
     

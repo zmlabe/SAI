@@ -1,10 +1,9 @@
 """
-Logistic regression for evaluating differences in ARISE vs. SSP2-4.5. This 
-script looks at the optimized models for each region and plots the 
-validation scores.
+XAI results for the ANN in detecting how many years it has been since 
+injection in ARISE-1.5
 
 Author     : Zachary M. Labe
-Date       : 13 April 2022
+Date       : 3 October 2022
 Version    : 1 - testing ANN architectures for detecting SAI
 """
 
@@ -24,8 +23,8 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 
 ###############################################################################
 ###############################################################################
-modelGCMs = ['ARISE','WACCM']
-datasetsingle = ['all_saiComparison']
+modelGCMs = ['ARISE']
+datasetsingle = ['ARISE']
 seasons = ['annual']
 monthlychoice = seasons[0]
 ###############################################################################
@@ -61,100 +60,81 @@ if seasons != 'none':
 ### Begin ANN and the entire script - loop through these parameters
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
 ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,5]
-reg_nameq = ['Globe']
+reg_nameq = ['Globe','narrowTropics']
 NCOMBOS = 20
-directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
+directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI/ONLYARISE/'
 directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
 
-### Read in weights for temperature
-latshape = 96
-lonshape = 144
-mapweights_t = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
-latitudes_t = np.empty((len(reg_nameq),latshape))
-longitudes_t = np.empty((len(reg_nameq),lonshape))
-truelabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-predlabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+def normalize_negative_one(img):
+    normalized_input = (img - np.nanmin(img)) / (np.nanmax(img) - np.nanmin(img))
+    return 2*normalized_input - 1
+
+### XAI reshape
+latshapeg = 96
+lonshapeg = 144
+latshapet = 22
+lonshapet = 144  
+
+### Read in xai for temperature
+mapweights_t = []
+latitudes_t = []
+longitudes_t = []
 for rr in range(len(reg_nameq)):
     reg_name = reg_nameq[rr]
-    variq = 'TREFHT'
-    ### Select how to save files
-    if land_only == True:
-        saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-    elif ocean_only == True:
-        saveData = seasons[0] + '_OCEAN' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    else:
-        saveData = seasons[0] + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    print('*Filename == < %s >' % saveData) 
+    variq = 'TREFHT'      
+
+    latitudes_tn = np.load('/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/' + 'Latitudes-LOGREG_annual_LAND_GCMarise_LOGREG_%s_%s_NumOfGCMS-2.npy' % (variq,reg_name))
+    longitudes_tn = np.load('/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/' + 'Longitudes-LOGREG_annual_LAND_GCMarise_LOGREG_%s_%s_NumOfGCMS-2.npy' % (variq,reg_name))
+    XAI_t = np.load(directorydata + 'InputsxGradients_annual_LAND_GCMarise_YearsSinceSAI_ARISEONLY_%s_%s_NumOfGCMS-1.npz' % (variq,reg_name))['XAI']
     
-    mapweights_t[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
-    latitudes_t[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
-    longitudes_t[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
-    truelabels_t[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
-    predlabels_t[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
+    latitudes_t.append(latitudes_tn)
+    longitudes_t.append(longitudes_tn)
+    mapweights_t.append(XAI_t)
     
-### Read in weights for precipitation
-latshape = 96
-lonshape = 144
-mapweights_p = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
-latitudes_p = np.empty((len(reg_nameq),latshape))
-longitudes_p = np.empty((len(reg_nameq),lonshape))
-truelabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-predlabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+### Read in xai for precipitation
+mapweights_p = []
+latitudes_p = []
+longitudes_p = []
 for rr in range(len(reg_nameq)):
     reg_name = reg_nameq[rr]
-    variq = 'PRECT'
-    ### Select how to save files
-    if land_only == True:
-        saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-    elif ocean_only == True:
-        saveData = seasons[0] + '_OCEAN' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    else:
-        saveData = seasons[0] + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    print('*Filename == < %s >' % saveData) 
+    variq = 'PRECT'      
+
+    latitudes_pn = np.load('/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/' + 'Latitudes-LOGREG_annual_LAND_GCMarise_LOGREG_%s_%s_NumOfGCMS-2.npy' % (variq,reg_name))
+    longitudes_pn = np.load('/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/' + 'Longitudes-LOGREG_annual_LAND_GCMarise_LOGREG_%s_%s_NumOfGCMS-2.npy' % (variq,reg_name))
+    XAI_p = np.load(directorydata + 'InputsxGradients_annual_LAND_GCMarise_YearsSinceSAI_ARISEONLY_%s_%s_NumOfGCMS-1.npz' % (variq,reg_name))['XAI']
     
-    mapweights_p[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
-    latitudes_p[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
-    longitudes_p[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
-    truelabels_p[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
-    predlabels_p[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
+    latitudes_p.append(latitudes_pn)
+    longitudes_p.append(longitudes_pn)
+    mapweights_p.append(XAI_p)
     
-### Prepare weights for evaluation
-weights_t_sai = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
-weights_t_con = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
-weights_p_sai = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
-weights_p_con = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
+### Reshape everything
+xai_globe_t = mapweights_t[0].reshape(yearsall.shape[0],latshapeg,lonshapeg)
+xai_globe_p = mapweights_p[0].reshape(yearsall.shape[0],latshapeg,lonshapeg)
+lat_g = latitudes_t[0]
+lon_g = longitudes_t[0]
 
-### Prepare classes for composites:
-labels_t_sai = truelabels_t.squeeze().reshape(2,35)[0]
-labels_t_con = truelabels_t.squeeze().reshape(2,35)[1]
-labels_p_sai = truelabels_p.squeeze().reshape(2,35)[0]
-labels_p_con = truelabels_p.squeeze().reshape(2,35)[1]
+xai_tropic_t = mapweights_t[1].reshape(yearsall.shape[0],latshapet,lonshapet)
+xai_tropic_p = mapweights_p[1].reshape(yearsall.shape[0],latshapet,lonshapet)
+lat_t = latitudes_t[1]
+lon_t = longitudes_t[1]
 
-predss_t_sai = predlabels_t.squeeze().reshape(2,35)[0]
-predss_t_con = predlabels_t.squeeze().reshape(2,35)[1]
-predss_p_sai = predlabels_p.squeeze().reshape(2,35)[0]
-predss_p_con = predlabels_p.squeeze().reshape(2,35)[1]
+### Calculate two trend periods
+yearq1 = np.where((yearsall >= 2035) & (yearsall <= 2044))[0]
+# yearq2 = np.where((yearsall >= 2045) & (yearsall <= 2069))[0]
 
+### Calculate means
+mean_globe_t = np.nanmean(xai_globe_t[yearq1,:,:],axis=0)
+mean_globe_p = np.nanmean(xai_globe_p[yearq1,:,:],axis=0)
 
-### Average across time
-comp_t_sai = []
-comp_t_con = []
-comp_p_sai = []
-comp_p_con = []
-for i in range(len(yearsall)):
-    if predss_t_sai[i] == 0.:
-        comp_t_sai.append(weights_t_sai[i])
-    if predss_t_con[i] == 1.:
-        comp_t_con.append(weights_t_con[i])
-    if predss_p_sai[i] == 0.:
-        comp_p_sai.append(weights_p_sai[i])
-    if predss_p_con[i] == 1.:
-        comp_p_con.append(weights_p_con[i])
-        
-comp_t_sai_ready = np.nanmean(np.asarray(comp_t_sai),axis=0)
-comp_t_con_ready = np.nanmean(np.asarray(comp_t_con),axis=0)
-comp_p_sai_ready = np.nanmean(np.asarray(comp_p_sai),axis=0)
-comp_p_con_ready = np.nanmean(np.asarray(comp_p_con),axis=0)
+mean_tropics_t = np.nanmean(xai_tropic_t[yearq1,:,:],axis=0)
+mean_tropics_p = np.nanmean(xai_tropic_p[yearq1,:,:],axis=0)
+
+### Scale the map means
+scale_globe_t = mean_globe_t/np.nanmax(abs(mean_globe_t))
+scale_globe_p = mean_globe_p/np.nanmax(abs(mean_globe_p))
+
+scale_tropics_t = mean_tropics_t/np.nanmax(abs(mean_tropics_t))
+scale_tropics_p = mean_tropics_p/np.nanmax(abs(mean_tropics_p))
 
 ###############################################################################
 ###############################################################################
@@ -164,23 +144,19 @@ lon = longitudes_p
 lat = latitudes_p
 
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
-limit = np.arange(-0.005,0.00501,0.0001)
-barlim = np.round(np.arange(-0.005,0.00501,0.005),3)
+limit = np.arange(-0.4,0.41,0.01)
+barlim = np.round(np.arange(-0.4,0.5,0.2),2)
 cmap = cmocean.cm.balance
-label = r'\textbf{TREFHT [Input$\times$Weights]}'
-limitd = np.arange(-0.005,0.00501,0.0001)
-barlimd = np.round(np.arange(-0.005,0.00501,0.005),3)
-cmapd = cmocean.cm.tarn
-labeld = r'\textbf{PRECT [Input$\times$Weights]}'
+label = r'\textbf{RELEVANCE [1935-1944]}'
 
-fig = plt.figure(figsize=(9,7))
+fig = plt.figure(figsize=(10,4))
 ###############################################################################
 ax1 = plt.subplot(221)
 m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='k',linewidth=0.4,zorder=30)
     
 ### Variable
-x, y = np.meshgrid(lon,lat)
+x, y = np.meshgrid(lon_g,lat_g)
    
 circle = m.drawmapboundary(fill_color='dimgrey',color='dimgray',
                   linewidth=0.7)
@@ -193,40 +169,12 @@ par=m.drawparallels(parallels,labels=[False,False,False,False],linewidth=0.3,
 mer=m.drawmeridians(meridians,labels=[False,False,False,False],linewidth=0.3,
                     fontsize=4,color='w',zorder=40)
 
-cs1 = m.contourf(x,y,comp_t_sai_ready,limit,extend='both',latlon=True)
+cs1 = m.contourf(x,y,scale_globe_t,limit,extend='both',latlon=True)
 cs1.set_cmap(cmap) 
 m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
 
-plt.title(r'\textbf{SAI}',fontsize=13,color='dimgrey')     
+plt.title(r'\textbf{TREFHT}',fontsize=20,color='dimgrey')     
 ax1.annotate(r'\textbf{[%s]}' % letters[0],xy=(0,0),xytext=(0.98,0.84),
-              textcoords='axes fraction',color='k',fontsize=9,
-              rotation=0,ha='center',va='center')
-
-###############################################################################
-###############################################################################
-###############################################################################
-ax2 = plt.subplot(223)
-m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
-m.drawcoastlines(color='k',linewidth=0.4,zorder=30)
-
-### Variable
-circle = m.drawmapboundary(fill_color='dimgrey',color='dimgray',
-                  linewidth=0.7)
-circle.set_clip_on(False)
-
-parallels = np.arange(-90,91,30)
-meridians = np.arange(-180,180,60)
-par=m.drawparallels(parallels,labels=[False,False,False,False],linewidth=0.3,
-                color='w',fontsize=4,zorder=40)
-mer=m.drawmeridians(meridians,labels=[False,False,False,False],linewidth=0.3,
-                    fontsize=4,color='w',zorder=40)
-
-cs2 = m.contourf(x,y,comp_t_con_ready,limit,extend='both',latlon=True)
-cs2.set_cmap(cmap) 
-m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
-
-plt.title(r'\textbf{SSP2-4.5}',fontsize=13,color='dimgrey')         
-ax2.annotate(r'\textbf{[%s]}' % letters[2],xy=(0,0),xytext=(0.98,0.84),
               textcoords='axes fraction',color='k',fontsize=9,
               rotation=0,ha='center',va='center')
 
@@ -238,6 +186,8 @@ m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='k',linewidth=0.4,zorder=30)
 
 ### Variable
+x, y = np.meshgrid(lon_g,lat_g)
+
 circle = m.drawmapboundary(fill_color='dimgrey',color='dimgray',
                   linewidth=0.7)
 circle.set_clip_on(False)
@@ -249,11 +199,11 @@ par=m.drawparallels(parallels,labels=[False,False,False,False],linewidth=0.3,
 mer=m.drawmeridians(meridians,labels=[False,False,False,False],linewidth=0.3,
                     fontsize=4,color='w',zorder=40)
 
-cs2 = m.contourf(x,y,comp_p_sai_ready,limitd,extend='both',latlon=True)
-cs2.set_cmap(cmapd) 
+cs2 = m.contourf(x,y,scale_globe_p,limit,extend='both',latlon=True)
+cs2.set_cmap(cmap) 
 m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
 
-plt.title(r'\textbf{SAI}',fontsize=13,color='dimgrey')         
+plt.title(r'\textbf{PRECT}',fontsize=20,color='dimgrey')         
 ax2.annotate(r'\textbf{[%s]}' % letters[1],xy=(0,0),xytext=(0.98,0.84),
               textcoords='axes fraction',color='k',fontsize=9,
               rotation=0,ha='center',va='center')
@@ -261,11 +211,14 @@ ax2.annotate(r'\textbf{[%s]}' % letters[1],xy=(0,0),xytext=(0.98,0.84),
 ###############################################################################
 ###############################################################################
 ###############################################################################
-ax2 = plt.subplot(224)
-m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
+ax2 = plt.subplot(223)
+m = Basemap(projection='cea',llcrnrlat=-20.1,urcrnrlat=20.1,\
+            llcrnrlon=-180,urcrnrlon=180,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='k',linewidth=0.4,zorder=30)
 
 ### Variable
+x, y = np.meshgrid(lon_t,lat_t)
+
 circle = m.drawmapboundary(fill_color='dimgrey',color='dimgray',
                   linewidth=0.7)
 circle.set_clip_on(False)
@@ -277,17 +230,46 @@ par=m.drawparallels(parallels,labels=[False,False,False,False],linewidth=0.3,
 mer=m.drawmeridians(meridians,labels=[False,False,False,False],linewidth=0.3,
                     fontsize=4,color='w',zorder=40)
 
-cs4 = m.contourf(x,y,comp_p_con_ready,limitd,extend='both',latlon=True)
-cs4.set_cmap(cmapd) 
+cs2 = m.contourf(x,y,scale_tropics_t,limit,extend='both',latlon=True)
+cs2.set_cmap(cmap) 
 m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
+       
+ax2.annotate(r'\textbf{[%s]}' % letters[2],xy=(0,0),xytext=(0.98,0.84),
+              textcoords='axes fraction',color='k',fontsize=9,
+              rotation=0,ha='center',va='center')
 
-plt.title(r'\textbf{SSP2-4.5}',fontsize=13,color='dimgrey')         
+###############################################################################
+###############################################################################
+###############################################################################
+ax2 = plt.subplot(224)
+m = Basemap(projection='cea',llcrnrlat=-20.1,urcrnrlat=20.1,\
+            llcrnrlon=-180,urcrnrlon=180,resolution='l',area_thresh=10000)
+m.drawcoastlines(color='k',linewidth=0.4,zorder=30)
+
+### Variable
+x, y = np.meshgrid(lon_t,lat_t)
+
+circle = m.drawmapboundary(fill_color='dimgrey',color='dimgray',
+                  linewidth=0.7)
+circle.set_clip_on(False)
+
+parallels = np.arange(-90,91,30)
+meridians = np.arange(-180,180,60)
+par=m.drawparallels(parallels,labels=[False,False,False,False],linewidth=0.3,
+                color='w',fontsize=4,zorder=40)
+mer=m.drawmeridians(meridians,labels=[False,False,False,False],linewidth=0.3,
+                    fontsize=4,color='w',zorder=40)
+
+cs4 = m.contourf(x,y,scale_tropics_p,limit,extend='both',latlon=True)
+cs4.set_cmap(cmap) 
+m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
+       
 ax2.annotate(r'\textbf{[%s]}' % letters[3],xy=(0,0),xytext=(0.98,0.84),
               textcoords='axes fraction',color='k',fontsize=9,
               rotation=0,ha='center',va='center')
 
 ###############################################################################
-cbar_ax1 = fig.add_axes([0.155,0.1,0.2,0.025])                
+cbar_ax1 = fig.add_axes([0.382,0.1,0.24,0.025])                
 cbar1 = fig.colorbar(cs1,cax=cbar_ax1,orientation='horizontal',
                     extend='both',extendfrac=0.07,drawedges=False)
 cbar1.set_label(label,fontsize=10,color='dimgrey',labelpad=1.4)  
@@ -296,19 +278,9 @@ cbar1.set_ticklabels(list(map(str,barlim)))
 cbar1.ax.tick_params(axis='x', size=.01,labelsize=8)
 cbar1.outline.set_edgecolor('dimgrey')
 
-###############################################################################
-cbar_axd1 = fig.add_axes([0.65,0.1,0.2,0.025])                
-cbard1 = fig.colorbar(cs4,cax=cbar_axd1,orientation='horizontal',
-                    extend='both',extendfrac=0.07,drawedges=False)
-cbard1.set_label(labeld,fontsize=10,color='dimgrey',labelpad=1.4)  
-cbard1.set_ticks(barlimd)
-cbard1.set_ticklabels(list(map(str,barlimd)))
-cbard1.ax.tick_params(axis='x', size=.01,labelsize=8)
-cbard1.outline.set_edgecolor('dimgrey')
-
 plt.tight_layout()
-plt.subplots_adjust(hspace=-0.4)
+plt.subplots_adjust(hspace=-0.2)
 
-plt.savefig(directoryfigure + 'LogReg_DetectSAI_OverallWeightsMaps_Globe.png',dpi=300)
+plt.savefig(directoryfigure + 'YearsSinceSAI_XAI_Globe-Tropics_Temporal1.png',dpi=300)
     
     

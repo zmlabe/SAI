@@ -61,8 +61,8 @@ if seasons != 'none':
 letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
 ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,5]
 reg_nameq = ['Globe']
-NCOMBOS = 10
-directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI/'
+NCOMBOS = 20
+directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
 directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
 
 ### Read in weights for temperature
@@ -135,10 +135,8 @@ predss_p_sai = predlabels_p.squeeze().reshape(2,35)[0]
 predss_p_con = predlabels_p.squeeze().reshape(2,35)[1]
 
 ### ### Calculate two trend periods
-ensindext = 3
-ensindexp = 8
-yearq1 = np.where((yearsall >= 2035) & (yearsall <= 2049))[0]
-# yearq2 = np.where((yearsall >= 2050) & (yearsall <= 2069))[0]
+yearq1 = np.where((yearsall >= 2035) & (yearsall <= 2044))[0]
+# yearq2 = np.where((yearsall >= 2045) & (yearsall <= 2069))[0]
 
 ### Look at the example year
 comp_t_sai_ready = np.nanmean(weights_t_sai[yearq1,:,:],axis=0)
@@ -277,7 +275,7 @@ cbard1.set_ticks(barlimd)
 cbard1.set_ticklabels(list(map(str,barlimd)))
 cbard1.ax.tick_params(axis='x', size=.01,labelsize=7)
 cbard1.outline.set_edgecolor('dimgrey')
-fig.suptitle(r'\textbf{2035-2049}',color='dimgrey',fontsize=35)
+fig.suptitle(r'\textbf{2035-2044}',color='dimgrey',fontsize=35)
 
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.4,top=0.99)
