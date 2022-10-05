@@ -3,6 +3,9 @@ Using explainable AI to identify regional climate signals in response to stratos
 
 ###### Under construction... ```[Python 3.7]```
 
+## Project
+AI Methods for Solar Radiation Management Research (DARPA‐PA‐21‐04‐02) - https://github.com/eabarnes1010/actm-sai-csu
+
 ## Contact
 Zachary Labe - [Research Website](https://zacklabe.com/) - [@ZLabe](https://twitter.com/ZLabe)
 
