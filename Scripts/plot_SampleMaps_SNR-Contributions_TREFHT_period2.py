@@ -106,7 +106,7 @@ ax = plt.subplot(121)
 var = contribution
 limit = np.arange(-0.005,0.00501,0.0001)
 barlim = np.round(np.arange(-0.005,0.00501,0.005),3)
-label = r'\textbf{SAI-TREFHT [Input$\times$Weights]}'
+label = r'\textbf{SAI-1.5 Temperature [Input$\times$Weights]}'
 
 m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='darkgrey',linewidth=0.4)
@@ -145,7 +145,7 @@ var = snrall
 limit = np.arange(0,2.1,0.25)
 barlim = np.round(np.arange(0,2.1,1),2)
 
-label = r'\textbf{SAI-TREFHT [Signal-To-Noise]}'
+label = r'\textbf{SAI-1.5 Temperature [Signal-To-Noise]}'
 
 m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='darkgrey',linewidth=0.4)

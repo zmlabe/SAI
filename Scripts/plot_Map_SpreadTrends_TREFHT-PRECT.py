@@ -188,7 +188,7 @@ max2_waccm = np.nanmax(per2_trend_waccm,axis=0)
 max1_arise = np.nanmax(per1_trend_arise,axis=0)
 max2_arise = np.nanmax(per2_trend_arise,axis=0)
 
-### Calculate max trend
+### Calculate min trend
 min1_waccm = np.nanmin(per1_trend_waccm,axis=0)
 min2_waccm = np.nanmin(per2_trend_waccm,axis=0)
 min1_arise = np.nanmin(per1_trend_arise,axis=0)
@@ -238,8 +238,8 @@ datap_waccm = datap_waccmall[:,:,-yearsall.shape[0]:,:,:].squeeze()
 datap_arise = datap_arise.squeeze()
 
 ### Calculate two trend periods
-yearq1 = np.where((yearsall >= 2035) & (yearsall <= 2049))[0]
-yearq2 = np.where((yearsall >= 2050) & (yearsall <= 2069))[0]
+yearq1 = np.where((yearsall >= 2035) & (yearsall <= 2044))[0]
+yearq2 = np.where((yearsall >= 2045) & (yearsall <= 2069))[0]
 
 per1_trendp_waccm = calcTrend(datap_waccm[:,yearq1,:,:])
 per2_trendp_waccm = calcTrend(datap_waccm[:,yearq2,:,:])
@@ -261,7 +261,7 @@ max2p_waccm = np.nanmax(per2_trendp_waccm,axis=0)
 max1p_arise = np.nanmax(per1_trendp_arise,axis=0)
 max2p_arise = np.nanmax(per2_trendp_arise,axis=0)
 
-### Calculate max trend
+### Calculate min trend
 min1p_waccm = np.nanmin(per1_trendp_waccm,axis=0)
 min2p_waccm = np.nanmin(per2_trendp_waccm,axis=0)
 min1p_arise = np.nanmin(per1_trendp_arise,axis=0)
@@ -278,11 +278,11 @@ plotvar = [spread1_arise,spread1_waccm,spread1p_arise,spread1p_waccm,
            spread2_arise,spread2_waccm,spread2p_arise,spread2p_waccm]
 colormaps = [cmr.sunburst,cmr.sunburst,cmr.savanna,cmr.savanna,
              cmr.sunburst,cmr.sunburst,cmr.savanna,cmr.savanna]
-limits = [np.arange(0,2.1,0.01),np.arange(0,2.1,0.01),np.arange(0,2.1,0.01),np.arange(0,2.1,0.01),
-          np.arange(0,2.1,0.01),np.arange(0,2.1,0.01),np.arange(0,2.1,0.01),np.arange(0,2.1,0.01)]
-barlims = [np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2),
-           np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2),np.round(np.arange(0,2.1,0.5),2)]
-titles = ['SAI','SSP2-4.5','SAI','SSP2-4.5']
+limits = [np.arange(0,3.01,0.01),np.arange(0,3.01,0.01),np.arange(0,3.01,0.01),np.arange(0,3.01,0.01),
+          np.arange(0,3.01,0.01),np.arange(0,3.01,0.01),np.arange(0,3.01,0.01),np.arange(0,3.01,0.01)]
+barlims = [np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2),
+           np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2),np.round(np.arange(0,3.01,0.5),2)]
+titles = ['SAI-1.5','SSP2-4.5','SAI-1.5','SSP2-4.5']
 
 ###############################################################################
 ###############################################################################
@@ -369,7 +369,7 @@ for i in range(len(plotvar)):
 cbar_ax = fig.add_axes([0.12,0.105,0.31,0.026])                
 cbar = fig.colorbar(cs1,cax=cbar_ax,orientation='horizontal',
                     extend='max',extendfrac=0.07,drawedges=False)
-cbar.set_label(r'\textbf{ENSEMBLE SPREAD -- TREFHT [$^{\circ}$C/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
+cbar.set_label(r'\textbf{ENSEMBLE SPREAD -- Temperature [$^{\circ}$C/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
 cbar.set_ticks(barlims[0])
 cbar.set_ticklabels(list(map(str,barlims[0])))
 cbar.ax.tick_params(axis='x', size=.01,labelsize=7)
@@ -378,7 +378,7 @@ cbar.outline.set_edgecolor('dimgrey')
 cbar_ax2 = fig.add_axes([0.60,0.105,0.31,0.026])                
 cbar2 = fig.colorbar(cs2,cax=cbar_ax2,orientation='horizontal',
                     extend='max',extendfrac=0.07,drawedges=False)
-cbar2.set_label(r'\textbf{ENSEMBLE SPREAD -- PRECT [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
+cbar2.set_label(r'\textbf{ENSEMBLE SPREAD -- Precipitation [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
 cbar2.set_ticks(barlims[-1])
 cbar2.set_ticklabels(list(map(str,barlims[-1])))
 cbar2.ax.tick_params(axis='x', size=.01,labelsize=7)
@@ -386,4 +386,4 @@ cbar2.outline.set_edgecolor('dimgrey')
     
 plt.tight_layout()
 plt.subplots_adjust(bottom=0.14)
-plt.savefig(directoryfigure + 'Map_SpreadTrends_TREFHT-PRECT.png',dpi=300)
+plt.savefig(directoryfigure + 'Map_SpreadTrends_TREFHT-PRECT.png',dpi=500)

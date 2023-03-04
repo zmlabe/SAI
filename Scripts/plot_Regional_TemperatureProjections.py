@@ -14,6 +14,7 @@ import numpy as np
 import calc_Utilities as UT
 import calc_Stats as dSS
 import calc_dataFunctions as df
+from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid
 
 ### Plotting defaults 
 plt.rc('text',usetex=True)
@@ -178,7 +179,7 @@ for i in range(len(reg_nameq)):
              clip_on=False,alpha=1,label=r'\textbf{SSP2-4.5}')
     plt.fill_between(yearsarise,minarise,maxarise,facecolor='deepskyblue',alpha=0.5,clip_on=False)
     plt.plot(yearsarise,meanarise,linestyle='--',color='deepskyblue',linewidth=1,
-             clip_on=False,alpha=1,label=r'\textbf{SAI}',dashes=(1,0.3))
+             clip_on=False,alpha=1,label=r'\textbf{SAI-1.5}',dashes=(1,0.3))
     
     if i == 6:
         plt.xticks(np.arange(2015,2080,20),np.arange(2015,2080,20),rotation=0)
@@ -206,7 +207,7 @@ for i in range(len(reg_nameq)):
                 dashes=(1,0.8))
     
     if i == 3:
-        plt.ylabel(r'\textbf{TREFHT [$^{\circ}$C]}',fontsize=8,
+        plt.ylabel(r'\textbf{Temperature [$^{\circ}$C]}',fontsize=8,
                              color='dimgrey')
     
     if i ==1:
@@ -220,4 +221,4 @@ for i in range(len(reg_nameq)):
     plt.text(2071,2.6,r'\textbf{[%s]}' % letters[i],fontsize=7,color='k',ha='right')
    
 plt.subplots_adjust(wspace=0.2,hspace=0.3)
-plt.savefig(directoryfigure + 'Regional_TemperatureProjections.png',dpi=300)
+plt.savefig(directoryfigure + 'Regional_TemperatureProjections.png',dpi=500)

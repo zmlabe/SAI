@@ -29,7 +29,8 @@ modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
 monthlychoice = seasons[0]
-variq = 'PRECT'
+variq = 'TREFHT'
+variqn = 'Temperature'
 ###############################################################################
 ###############################################################################
 land_only = True
@@ -141,9 +142,9 @@ for plo in range(len(labels)):
     ax.yaxis.grid(zorder=2,color='darkgrey',alpha=0.7,clip_on=False,linewidth=0.5)
     
     def set_box_color(bp, color):
-        plt.setp(bp['boxes'],color='w')
-        plt.setp(bp['whiskers'], color='w',linewidth=1.5)
-        plt.setp(bp['caps'], color='w',alpha=0)
+        plt.setp(bp['boxes'],color='lightcoral')
+        plt.setp(bp['whiskers'], color='lightcoral',linewidth=1.5)
+        plt.setp(bp['caps'], color='lightcoral',alpha=0)
         plt.setp(bp['medians'], color=color,linewidth=2)
     
     positionsq = np.arange(len(ridge_penaltyq))
@@ -158,7 +159,7 @@ for plo in range(len(labels)):
     for i in range(plotdata.shape[1]):
         y = plotdata[:,i]
         x = np.random.normal(positionsq[i], 0.04, size=len(y))
-        plt.plot(x, y,color='teal', alpha=0.8,zorder=10,marker='.',linewidth=0,markersize=5,markeredgewidth=0,clip_on=False)
+        plt.plot(x, y,color='teal', alpha=0.6,zorder=10,marker='.',linewidth=0,markersize=3,markeredgewidth=0,clip_on=False)
      
     if any([plo==0,plo==3,plo==6]):
         plt.yticks(np.arange(0,101,10),list(map(str,np.round(np.arange(0,101,10),2))),
@@ -182,7 +183,7 @@ for plo in range(len(labels)):
         ax.axes.xaxis.set_ticklabels([])
         
     if plo == 7:
-        plt.xlabel(r'\textbf{Ridge Penalty (L$_{2}$) -- %s}' % variq,color='k',fontsize=6)
+        plt.xlabel(r'\textbf{Ridge Penalty (L$_{2}$) -- %s}' % variqn,color='k',fontsize=6)
     
         
     plt.text(3.65,102.5,r'\textbf{%s}' % labels[plo],fontsize=11,color='dimgrey',
@@ -193,7 +194,7 @@ for plo in range(len(labels)):
         plt.ylabel(r'\textbf{Accuracy [\%]}',color='k',fontsize=7)
 
 plt.tight_layout()
-plt.savefig(directoryfigure + 'AccuracyScores_LogReg_DetectSAI_ValidationScores_%s.png' % variq,dpi=300)
+plt.savefig(directoryfigure + 'AccuracyScores_LogReg_DetectSAI_ValidationScores_%s.png' % variq,dpi=500)
 
 ###############################################################################
 ###############################################################################

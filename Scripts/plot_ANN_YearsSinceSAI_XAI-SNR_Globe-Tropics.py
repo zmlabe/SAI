@@ -179,7 +179,7 @@ cs1 = m.contourf(x,y,scale_globe_t,limit,extend='both',latlon=True)
 cs1.set_cmap(cmap) 
 m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
 
-plt.title(r'\textbf{TREFHT}',fontsize=20,color='dimgrey')     
+plt.title(r'\textbf{Temperature}',fontsize=20,color='dimgrey')     
 ax1.annotate(r'\textbf{[%s]}' % letters[0],xy=(0,0),xytext=(0.98,0.84),
               textcoords='axes fraction',color='k',fontsize=9,
               rotation=0,ha='center',va='center')
@@ -209,7 +209,7 @@ cs2 = m.contourf(x,y,scale_globe_p,limit,extend='both',latlon=True)
 cs2.set_cmap(cmap) 
 m.drawlsmask(land_color=(0,0,0,0),ocean_color='dimgrey',lakes=False,zorder=11)
 
-plt.title(r'\textbf{PRECT}',fontsize=20,color='dimgrey')         
+plt.title(r'\textbf{Precipitation}',fontsize=20,color='dimgrey')         
 ax2.annotate(r'\textbf{[%s]}' % letters[1],xy=(0,0),xytext=(0.98,0.84),
               textcoords='axes fraction',color='k',fontsize=9,
               rotation=0,ha='center',va='center')
@@ -357,6 +357,6 @@ cbar2.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.2)
 
-plt.savefig(directoryfigure + 'YearsSinceSAI_XAI-SNR_Globe-Tropics.png',dpi=300)
+plt.savefig(directoryfigure + 'YearsSinceSAI_XAI-SNR_Globe-Tropics.png',dpi=600)
     
     

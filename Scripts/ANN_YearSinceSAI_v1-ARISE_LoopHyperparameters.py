@@ -50,7 +50,7 @@ directorydata = '/Users/zlabe/Data/SAI/'
 modelGCMs = ['ARISE']
 datasetsingle = ['ARISE']
 seasons = ['annual']
-variq = 'PRECT'
+variq = 'TREFHT'
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
@@ -548,7 +548,7 @@ for rr in range(len(reg_nameq)):
                 NNType = 'ANN_regress'
                 option4 = True
                 biasBool = False
-                hiddensList = [[5]]
+                hiddensList = [[10,10,10]]
                 ridge_penalty = ridge_penaltyq[ll]
                 actFun = 'relu'       
                 iterations = [500] 
@@ -559,14 +559,15 @@ for rr in range(len(reg_nameq)):
                 NNType = 'ANN_regress'
                 option4 = True
                 biasBool = False
-                hiddensList = [[5]]
+                hiddensList = [[10,10,10]]
                 ridge_penalty = ridge_penaltyq[ll]
                 actFun = 'relu'       
                 iterations = [500] 
                 random_segment = True
             # hiddenfolder = 'Hiddens_10x10'
-            hiddenfolder = 'Hiddens_5'
+            # hiddenfolder = 'Hiddens_5'
             # hiddenfolder = 'Hiddens_5x5'
+            hiddenfolder = 'Hiddens_10x10x10'
             
             session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
                                           inter_op_parallelism_threads=1)

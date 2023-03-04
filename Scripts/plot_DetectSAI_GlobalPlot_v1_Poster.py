@@ -21,7 +21,6 @@ plt.rc('font',**{'family':'sans-serif','sans-serif':['Avant Garde']})
 yearsall = np.arange(2035,2069+1,1)
 yearsobs = np.arange(1900,2015+1,1)
 variqall = ['TREFHT','PRECT']
-labelsn = ['Temperature','Precipitation']
 hiddensList = [[0]]
 actFun = 'relu'
 NNType = 'logreg'
@@ -34,7 +33,7 @@ ocean_only = False
 num_of_class = 2
 
 ### Loop through the different regions
-fig = plt.figure(figsize=(9,3))
+fig = plt.figure(figsize=(14,3))
 for rr in range(len(variqall)):
     reg_name = reg_nameq[0]
     variq = variqall[rr]
@@ -132,27 +131,26 @@ for rr in range(len(variqall)):
             plotdata = testingPred.copy()
             plotdata[i,yr] = 0+i
             
-            plt.scatter(yearsall[yr],plotdata[i,yr],s=225,color=cc,clip_on=False,
+            plt.scatter(yearsall[yr],plotdata[i,yr],s=400,color=cc,clip_on=False,
                         zorder=3,edgecolor=cc,linewidth=0.75,label=label,
                         alpha=(conf-0.5)/(1-0.5))
         
     plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
     
     if rr == 1:
-        plt.xlabel(r'\textbf{Years}',color='dimgrey',fontsize=9)
-        plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI-1.5','SSP2-4.5'],size=11)
-        plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
+        # plt.xlabel(r'\textbf{Years}',color='dimgrey',fontsize=11,rotation=90)
+        plt.yticks(np.arange(0,testingPred.shape[0],1),[r'\textbf{SAI}',r'\textbf{SSP2-4.5}'],size=11)
+        plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=11,
+                   rotation=90)
     else:
-        plt.yticks(np.arange(0,testingPred.shape[0],1),['SAI-1.5','SSP2-4.5'],size=11)
+        plt.yticks(np.arange(0,testingPred.shape[0],1),[r'\textbf{SAI}',r'\textbf{SSP2-4.5}'],size=11)
         plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8,
                    color='w')
-    plt.text(2071,0.5,r'\textbf{%s}' % (labelsn[rr]),ha='center',va='center',
-             color='k',rotation=270,fontsize=11)
-    plt.text(2070.2,0.5,r'\textbf{[%s\%%]}' % (np.round(acc,1)),ha='center',va='center',
-             color='dimgrey',rotation=270,fontsize=11)
+    plt.text(2070.8,0.5,r'\textbf{%s [%s\%%]}' % (labels[rr],np.round(acc,1)),ha='center',va='center',
+             color='k',rotation=90,fontsize=9)
     
     plt.xlim([2035,2070])   
     plt.ylim([0,1])
     plt.tight_layout()
 
-plt.savefig(directoryfigure + 'Predictions_DetectSAI_GLOBAL_TREFHT-PRECT.png',dpi=300)
+plt.savefig(directoryfigure + 'Predictions_DetectSAI_GLOBAL_TREFHT-PRECT_Poster.png',dpi=300)

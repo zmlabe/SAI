@@ -142,7 +142,7 @@ for plo in range(len(labels)):
     
     for ensm in range(len(plotSAI)):
         plt.plot(yearsall,plotSAI[ensm,:],linestyle='-',linewidth=1,
-                 color=cc1,label=r'\textbf{SAI}',clip_on=False,alpha=0.4)
+                 color=cc1,label=r'\textbf{SAI-1.5}',clip_on=False,alpha=0.4)
     
     plt.yticks(np.arange(0,36,5),list(map(str,np.round(np.arange(0,36,5),2))),fontsize=5)    
     plt.xticks(np.arange(2035,2070+1,5),list(map(str,np.arange(2035,2070+1,5))),fontsize=5)
@@ -157,7 +157,7 @@ for plo in range(len(labels)):
         ax.axes.yaxis.set_ticklabels([])
         
     if plo == 1:
-        plt.text(2022,47.5,r'\textbf{SAI -- TRAINING ENSEMBLE MEMBERS}',color=cc1,fontsize=9)
+        plt.text(2007.5,47.5,r'\textbf{SAI-1.5 [Precipitation] -- TRAINING ENSEMBLE MEMBERS}',color=cc1,fontsize=9)
     plt.text(2035,35,r'\textbf{[%s] %s}' % (letters[plo],labels[plo]),color='dimgrey',fontsize=9)
           
     plt.xlim([2035,2070])

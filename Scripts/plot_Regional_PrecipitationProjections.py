@@ -178,7 +178,7 @@ for i in range(len(reg_nameq)):
              clip_on=False,alpha=1,label=r'\textbf{SSP2-4.5}')
     plt.fill_between(yearsarise,minarise,maxarise,facecolor='saddlebrown',alpha=0.5,clip_on=False)
     plt.plot(yearsarise,meanarise,linestyle='--',color='saddlebrown',linewidth=1,
-             clip_on=False,alpha=1,label=r'\textbf{SAI}',dashes=(1,0.3))
+             clip_on=False,alpha=1,label=r'\textbf{SAI-1.5}',dashes=(1,0.3))
     
     plt.axvline(x=2035,ymax=0.8,linestyle='-',color='k',linewidth=2)
     plt.axvline(x=2045,ymax=0.8,linestyle='--',color='dimgrey',linewidth=2,
@@ -210,7 +210,7 @@ for i in range(len(reg_nameq)):
 
     
     if i == 3:
-        plt.ylabel(r'\textbf{PRECT [mm/day]}',fontsize=8,
+        plt.ylabel(r'\textbf{Precipitation [mm/day]}',fontsize=8,
                              color='dimgrey')
     
     if i ==1:
@@ -221,4 +221,4 @@ for i in range(len(reg_nameq)):
             text.set_color(line.get_color())
    
 plt.subplots_adjust(wspace=0.2,hspace=0.3)
-plt.savefig(directoryfigure + 'Regional_PrecipitationProjections.png',dpi=1000)
+plt.savefig(directoryfigure + 'Regional_PrecipitationProjections.png',dpi=500)

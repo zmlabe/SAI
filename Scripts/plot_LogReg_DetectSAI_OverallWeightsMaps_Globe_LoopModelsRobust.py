@@ -63,98 +63,106 @@ letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
 ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,5]
 reg_nameq = ['Globe']
 NCOMBOS = 20
-directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
+directorydata = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/LoopModelsRobust/'
 directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
 
-### Read in weights for temperature
-latshape = 96
-lonshape = 144
-mapweights_t = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
-latitudes_t = np.empty((len(reg_nameq),latshape))
-longitudes_t = np.empty((len(reg_nameq),lonshape))
-truelabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-predlabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-for rr in range(len(reg_nameq)):
-    reg_name = reg_nameq[rr]
-    variq = 'TREFHT'
-    ### Select how to save files
-    if land_only == True:
-        saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-    elif ocean_only == True:
-        saveData = seasons[0] + '_OCEAN' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    else:
-        saveData = seasons[0] + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    print('*Filename == < %s >' % saveData) 
-    
-    mapweights_t[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
-    latitudes_t[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
-    longitudes_t[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
-    truelabels_t[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
-    predlabels_t[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
-    
-### Read in weights for precipitation
-latshape = 96
-lonshape = 144
-mapweights_p = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
-latitudes_p = np.empty((len(reg_nameq),latshape))
-longitudes_p = np.empty((len(reg_nameq),lonshape))
-truelabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-predlabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
-for rr in range(len(reg_nameq)):
-    reg_name = reg_nameq[rr]
-    variq = 'PRECT'
-    ### Select how to save files
-    if land_only == True:
-        saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-    elif ocean_only == True:
-        saveData = seasons[0] + '_OCEAN' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    else:
-        saveData = seasons[0] + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    print('*Filename == < %s >' % saveData) 
-    
-    mapweights_p[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
-    latitudes_p[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
-    longitudes_p[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
-    truelabels_p[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
-    predlabels_p[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
-    
-### Prepare weights for evaluation
-weights_t_sai = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
-weights_t_con = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
-weights_p_sai = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
-weights_p_con = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
-
-### Prepare classes for composites:
-labels_t_sai = truelabels_t.squeeze().reshape(2,35)[0]
-labels_t_con = truelabels_t.squeeze().reshape(2,35)[1]
-labels_p_sai = truelabels_p.squeeze().reshape(2,35)[0]
-labels_p_con = truelabels_p.squeeze().reshape(2,35)[1]
-
-predss_t_sai = predlabels_t.squeeze().reshape(2,35)[0]
-predss_t_con = predlabels_t.squeeze().reshape(2,35)[1]
-predss_p_sai = predlabels_p.squeeze().reshape(2,35)[0]
-predss_p_con = predlabels_p.squeeze().reshape(2,35)[1]
-
-
-### Average across time
-comp_t_sai = []
-comp_t_con = []
-comp_p_sai = []
-comp_p_con = []
-for i in range(len(yearsall)):
-    if predss_t_sai[i] == 0.:
-        comp_t_sai.append(weights_t_sai[i])
-    if predss_t_con[i] == 1.:
-        comp_t_con.append(weights_t_con[i])
-    if predss_p_sai[i] == 0.:
-        comp_p_sai.append(weights_p_sai[i])
-    if predss_p_con[i] == 1.:
-        comp_p_con.append(weights_p_con[i])
+comp_t_sai_readyn = []
+comp_t_con_readyn = []
+comp_p_sai_readyn = []
+comp_p_con_readyn = []
+for modeli in range(NCOMBOS):
+    ### Read in weights for temperature
+    latshape = 96
+    lonshape = 144
+    mapweights_t = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
+    latitudes_t = np.empty((len(reg_nameq),latshape))
+    longitudes_t = np.empty((len(reg_nameq),lonshape))
+    truelabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+    predlabels_t = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+    for rr in range(len(reg_nameq)):
+        reg_name = reg_nameq[rr]
+        variq = 'TREFHT'
+        ### Select how to save files
+        if land_only == True:
+            saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREGrobust_' + str(modeli) + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
+        print('*Filename == < %s >' % saveData) 
         
-comp_t_sai_ready = np.nanmean(np.asarray(comp_t_sai),axis=0)
-comp_t_con_ready = np.nanmean(np.asarray(comp_t_con),axis=0)
-comp_p_sai_ready = np.nanmean(np.asarray(comp_p_sai),axis=0)
-comp_p_con_ready = np.nanmean(np.asarray(comp_p_con),axis=0)
+        mapweights_t[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
+        latitudes_t[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
+        longitudes_t[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
+        truelabels_t[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
+        predlabels_t[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
+        
+    ### Read in weights for precipitation
+    latshape = 96
+    lonshape = 144
+    mapweights_p = np.empty((len(reg_nameq),yearsall.shape[0]*2,latshape*lonshape))
+    latitudes_p = np.empty((len(reg_nameq),latshape))
+    longitudes_p = np.empty((len(reg_nameq),lonshape))
+    truelabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+    predlabels_p = np.empty((len(reg_nameq),yearsall.shape[0]*2))
+    for rr in range(len(reg_nameq)):
+        reg_name = reg_nameq[rr]
+        variq = 'PRECT'
+        ### Select how to save files
+        if land_only == True:
+            saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREGrobust_' + str(modeli) + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
+        print('*Filename == < %s >' % saveData) 
+        
+        mapweights_p[rr] = np.load(directorydata + 'WeightsInputs-LOGREG_' + saveData + '.npy')
+        latitudes_p[rr] = np.load(directorydata + 'Latitudes-LOGREG_' + saveData + '.npy')
+        longitudes_p[rr] = np.load(directorydata + 'Longitudes-LOGREG_' + saveData + '.npy')
+        truelabels_p[rr] = np.genfromtxt(directorydata + 'testingTrueLabels_' + saveData + '.txt')
+        predlabels_p[rr] = np.genfromtxt(directorydata + 'testingPredictedLabels_' + saveData + '.txt')
+        
+    ### Prepare weights for evaluation
+    weights_t_sai = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
+    weights_t_con = mapweights_t.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
+    weights_p_sai = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[0]
+    weights_p_con = mapweights_p.squeeze().reshape(2,yearsall.shape[0],latshape,lonshape)[1]
+    
+    ### Prepare classes for composites:
+    labels_t_sai = truelabels_t.squeeze().reshape(2,35)[0]
+    labels_t_con = truelabels_t.squeeze().reshape(2,35)[1]
+    labels_p_sai = truelabels_p.squeeze().reshape(2,35)[0]
+    labels_p_con = truelabels_p.squeeze().reshape(2,35)[1]
+    
+    predss_t_sai = predlabels_t.squeeze().reshape(2,35)[0]
+    predss_t_con = predlabels_t.squeeze().reshape(2,35)[1]
+    predss_p_sai = predlabels_p.squeeze().reshape(2,35)[0]
+    predss_p_con = predlabels_p.squeeze().reshape(2,35)[1]
+    
+    
+    ### Average across time
+    comp_t_sai = []
+    comp_t_con = []
+    comp_p_sai = []
+    comp_p_con = []
+    for i in range(len(yearsall)):
+        if predss_t_sai[i] == 0.:
+            comp_t_sai.append(weights_t_sai[i])
+        if predss_t_con[i] == 1.:
+            comp_t_con.append(weights_t_con[i])
+        if predss_p_sai[i] == 0.:
+            comp_p_sai.append(weights_p_sai[i])
+        if predss_p_con[i] == 1.:
+            comp_p_con.append(weights_p_con[i])
+            
+    comp_t_sai_readyq = np.nanmean(np.asarray(comp_t_sai),axis=0)
+    comp_t_con_readyq = np.nanmean(np.asarray(comp_t_con),axis=0)
+    comp_p_sai_readyq = np.nanmean(np.asarray(comp_p_sai),axis=0)
+    comp_p_con_readyq = np.nanmean(np.asarray(comp_p_con),axis=0)
+    
+    comp_t_sai_readyn.append(comp_t_sai_readyq)
+    comp_t_con_readyn.append(comp_t_con_readyq)
+    comp_p_sai_readyn.append(comp_p_sai_readyq)
+    comp_p_con_readyn.append(comp_p_con_readyq)
+    
+### Calculate composites across all models
+comp_t_sai_ready = np.nanmean(np.asarray(comp_t_sai_readyn),axis=0)
+comp_t_con_ready = np.nanmean(np.asarray(comp_t_con_readyn),axis=0)
+comp_p_sai_ready = np.nanmean(np.asarray(comp_p_sai_readyn),axis=0)
+comp_p_con_ready = np.nanmean(np.asarray(comp_p_con_readyn),axis=0)
 
 ###############################################################################
 ###############################################################################
@@ -167,11 +175,11 @@ letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n"]
 limit = np.arange(-0.005,0.00501,0.0001)
 barlim = np.round(np.arange(-0.005,0.00501,0.005),3)
 cmap = cmocean.cm.balance
-label = r'\textbf{Temperature [Input$\times$Weights]}'
+label = r'\textbf{Temperature [Composite Input$\times$Weights]}'
 limitd = np.arange(-0.005,0.00501,0.0001)
 barlimd = np.round(np.arange(-0.005,0.00501,0.005),3)
 cmapd = cmocean.cm.tarn
-labeld = r'\textbf{Precipitation [Input$\times$Weights]}'
+labeld = r'\textbf{Precipitation [Composite Input$\times$Weights]}'
 
 fig = plt.figure(figsize=(9,7))
 ###############################################################################
@@ -309,6 +317,6 @@ cbard1.outline.set_edgecolor('dimgrey')
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.4)
 
-plt.savefig(directoryfigure + 'LogReg_DetectSAI_OverallWeightsMaps_Globe.png',dpi=500)
+plt.savefig(directoryfigure + 'LogReg_DetectSAI_OverallWeightsMaps_Globe_LoopModelsRobust.png',dpi=500)
     
     

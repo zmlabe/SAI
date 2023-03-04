@@ -170,7 +170,7 @@ ax = plt.subplot(121)
 var = tempmean
 limit = np.arange(0,1.51,0.05)
 barlim = np.arange(0,1.6,0.5)
-label = r'\textbf{Std. Dev. -- TREFHT [$^{\circ}$C]}'
+label = r'\textbf{Std. Dev. -- Temperature [$^{\circ}$C]}'
 
 m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='darkgrey',linewidth=0.4)
@@ -279,7 +279,7 @@ ax = plt.subplot(122)
 var = precmean
 limit = np.arange(0,1.51,0.05)
 barlim = np.arange(0,1.6,0.5)
-label = r'\textbf{Std. Dev. -- PRECT [mm/day]}'
+label = r'\textbf{Std. Dev. -- Precipitation [mm/day]}'
 
 m = Basemap(projection='robin',lon_0=0,resolution='l',area_thresh=10000)
 m.drawcoastlines(color='darkgrey',linewidth=0.4)
@@ -395,4 +395,4 @@ plt.annotate(r'\textbf{[%s]}' % letters[1],
              xy=(0,0), xytext=(0.95,0.87),
              fontsize=10,color='k',alpha=1,ha='right')
 
-plt.savefig(directoryfigure + 'Map_ClimoSTDTempPrecip_RegionBoxes_detrended.png',dpi=300)
+plt.savefig(directoryfigure + 'Map_ClimoSTDTempPrecip_RegionBoxes_detrended.png',dpi=500)

@@ -31,7 +31,7 @@ modelGCMs = ['ARISE']
 datasetsingle = ['ARISE']
 seasons = ['annual']
 monthlychoice = seasons[0]
-variq = 'TREFHT'
+variq = 'PRECT'
 ###############################################################################
 ###############################################################################
 land_only = True
@@ -147,7 +147,7 @@ for plo in range(len(labels)):
     lines = slope*yearsall + intercept
     
     plt.plot(yearsall,oneToOne,linestyle='-',linewidth=2,color='k',clip_on=False)
-    plt.plot(yearsall,plotSAI,linestyle='--',linewidth=1.5,dashes=(1,0.3),color=cc1,label=r'\textbf{SAI}',clip_on=False)
+    plt.plot(yearsall,plotSAI,linestyle='--',linewidth=1.5,dashes=(1,0.3),color=cc1,label=r'\textbf{SAI-1.5 [Precipitation]}',clip_on=False)
     plt.plot(yearsall,lines,linestyle='-',linewidth=0.8,color=cc1,clip_on=False)
     
     plt.yticks(np.arange(0,36,5),list(map(str,np.round(np.arange(0,36,5),2))),fontsize=5)    
@@ -176,4 +176,4 @@ for plo in range(len(labels)):
     plt.ylim([0,35])
 
 plt.subplots_adjust(wspace=0.3,hspace=0.5)
-plt.savefig(directoryfigure + 'ANN_Predictions_YearsSAI_Regions_%s_ARISE_corr.png' % variq,dpi=300)
+plt.savefig(directoryfigure + 'ANN_Predictions_YearsSAI_Regions_%s_ARISE_corr.png' % variq,dpi=600)

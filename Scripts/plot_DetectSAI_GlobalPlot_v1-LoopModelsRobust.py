@@ -27,39 +27,56 @@ actFun = 'relu'
 NNType = 'logreg'
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 labels = variqall
-monthlychoice = 'annual'
+monthlychoice = ['annual']
 seasons = monthlychoice
 land_only = True
 ocean_only = False
 num_of_class = 2
+SAMPLEQ = 20
 
 ### Loop through the different regions
 fig = plt.figure(figsize=(9,3))
 for rr in range(len(variqall)):
-    reg_name = reg_nameq[0]
-    variq = variqall[rr]
-    if land_only == True:
-        saveData = seasons + '_LAND' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
-    elif ocean_only == True:
-        saveData = seasons + '_OCEAN' + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    else:
-        saveData = seasons + '_GCMarise_LOGREG' + '_' + variq + '_' + reg_name + '_' + 'NumOfGCMS-' + str(num_of_class)
-    print('*Filename == < %s >' % saveData) 
-                      
-    ### Directories to save files
-    directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/'
-    directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
     
-    ###############################################################################
-    ###############################################################################
-    ###############################################################################
-    ### Read in data for predictions
-    testIndices = np.genfromtxt(directoryoutput + 'testingEnsIndices_' + saveData + '.txt')
+    acc = np.full(SAMPLEQ,np.nan)
+    testIndices = np.full(SAMPLEQ,np.nan)
+    testingTrue = np.full((SAMPLEQ,num_of_class,yearsall.shape[0]),np.nan)
+    testingPred = np.full((SAMPLEQ,num_of_class,yearsall.shape[0]),np.nan)
+    for modeli in range(SAMPLEQ):
+        reg_name = reg_nameq[0]
+        variq = variqall[rr]
+        if land_only == True:
+            saveData = seasons[0] + '_LAND' + '_GCMarise_LOGREGrobust_' + str(modeli) + '_' + variq + '_' + reg_name  + '_' + 'NumOfGCMS-' + str(num_of_class)
+        print('*Filename == < %s >' % saveData) 
+                          
+        ### Directories to save files
+        directoryoutput = '/Users/zlabe/Documents/Research/SolarIntervention/Data/DetectSAI_ActualModel/LoopModelsRobust/'
+        directoryfigure = '/Users/zlabe/Documents/Research/SolarIntervention/Figures/'
+        
+        ###############################################################################
+        ###############################################################################
+        ###############################################################################
+        ### Read in data for predictions
+        testIndices[modeli] = np.genfromtxt(directoryoutput + 'testingEnsIndices_' + saveData + '.txt')
+        
+        testingTrueq = np.genfromtxt(directoryoutput + 'testingTrueLabels_' + saveData + '.txt').reshape(2,yearsall.shape[0])
+        testingPredq = np.genfromtxt(directoryoutput + 'testingPredictedLabels_' + saveData + '.txt').reshape(2,yearsall.shape[0])
     
-    testingTrue = np.genfromtxt(directoryoutput + 'testingTrueLabels_' + saveData + '.txt').reshape(2,yearsall.shape[0])
-    testingPred = np.genfromtxt(directoryoutput + 'testingPredictedLabels_' + saveData + '.txt').reshape(2,yearsall.shape[0])
+        acc[modeli] = accuracy_score(testingTrueq.ravel(),testingPredq.ravel())*100
+        testingTrue[modeli,:,:] = testingTrueq
+        testingPred[modeli,:,:] = testingPredq
+        
+    plottest_0 = np.full((yearsall.shape[0]),np.nan)
+    plottest_1= np.full((yearsall.shape[0]),np.nan)
+    for i in range(yearsall.shape[0]):
+        plottest_0q = testingPred[:,0,i]
+        plottest_0[i] = (plottest_0q == 0).sum()
+        
+        plottest_1q = testingPred[:,1,i]
+        plottest_1[i] = (plottest_1q == 1).sum()
     
-    testingCONF = np.genfromtxt(directoryoutput + 'testingPredictedConfidence_' + saveData + '.txt').reshape(2,yearsall.shape[0],2)
+    testingPredplot = np.append(plottest_0,plottest_1,axis=0).reshape(num_of_class,yearsall.shape[0])
+    testingPredplotf = testingPredplot/SAMPLEQ
     
     ###############################################################################
     ###############################################################################
@@ -93,9 +110,6 @@ for rr in range(len(variqall)):
     ax = plt.subplot(2,1,rr+1)
     adjust_spines(ax, ['left', 'bottom'])
     
-    acc = accuracy_score(testingTrue.ravel(),testingPred.ravel())*100
-    print(acc)
-    
     if rr == 1:
         ax.spines['top'].set_color('none')
         ax.spines['right'].set_color('none')
@@ -115,26 +129,27 @@ for rr in range(len(variqall)):
         ax.tick_params('both',length=0,width=0,which='major',color='dimgrey')
         ax.tick_params(axis='y',which='both',length=0)
     
-    for i in range(testingPred.shape[0]):
-        for yr in range(testingPred.shape[1]):
-            if testingPred[i,yr] == 0:
+    for i in range(testingPredplotf.shape[0]):
+        for yr in range(testingPredplotf.shape[1]):
+            if i == 0:
                 cc = cc1
                 label = 'SAI'
-            elif testingPred[i,yr] == 1:
+            elif i == 1:
                 cc = cc2
                 label = 'SSP2-4.5'
                 
-            if testingPred[i,yr] == 0:
-                conf = testingCONF[i,yr,0]
-            elif testingPred[i,yr] == 1:
-                conf = testingCONF[i,yr,1]
+            # Frequency here
+            conf = testingPredplotf[i,yr]
     
-            plotdata = testingPred.copy()
+            plotdata = testingPredplotf.copy()
             plotdata[i,yr] = 0+i
             
             plt.scatter(yearsall[yr],plotdata[i,yr],s=225,color=cc,clip_on=False,
                         zorder=3,edgecolor=cc,linewidth=0.75,label=label,
-                        alpha=(conf-0.5)/(1-0.5))
+                        alpha=conf)
+            
+            plt.text(yearsall[yr],i,'%s' % int(testingPredplot[i,yr]),fontsize=5,
+                     color='k',ha='center',va='center')
         
     plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
     
@@ -148,11 +163,11 @@ for rr in range(len(variqall)):
                    color='w')
     plt.text(2071,0.5,r'\textbf{%s}' % (labelsn[rr]),ha='center',va='center',
              color='k',rotation=270,fontsize=11)
-    plt.text(2070.2,0.5,r'\textbf{[%s\%%]}' % (np.round(acc,1)),ha='center',va='center',
+    plt.text(2070.2,0.5,r'\textbf{[%s\%%]}' % (np.round(np.nanmean(acc),1)),ha='center',va='center',
              color='dimgrey',rotation=270,fontsize=11)
     
     plt.xlim([2035,2070])   
     plt.ylim([0,1])
     plt.tight_layout()
 
-plt.savefig(directoryfigure + 'Predictions_DetectSAI_GLOBAL_TREFHT-PRECT.png',dpi=300)
+plt.savefig(directoryfigure + 'Predictions_DetectSAI_GLOBAL_TREFHT-PRECT_LoopModelsRobust.png',dpi=300)

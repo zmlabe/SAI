@@ -125,7 +125,7 @@ for rr in range(len(variqall)):
         for yr in range(testingPred.shape[1]):
             if testingPred[i,yr] == 0:
                 cc = cc1
-                label = 'SAI'
+                label = 'SAI-1.5'
             elif testingPred[i,yr] == 1:
                 cc = cc2
                 label = 'SSP2-4.5'
@@ -153,8 +153,11 @@ for rr in range(len(variqall)):
                         zorder=3,edgecolor=cc,linewidth=0.2,label=label,
                         alpha=(conf-0.5)/(1-0.5))
     
-    if any([rr==14,rr==15]):
-        plt.xlabel(r'\textbf{Years}',color='dimgrey')
+    if any([rr==14]):
+        plt.xlabel(r'\textbf{Temperature [Years]}',color='dimgrey')
+        plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
+    elif any([rr==15]):
+        plt.xlabel(r'\textbf{Precipitation [Years]}',color='dimgrey')
         plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8)
     else:
         plt.xticks(np.arange(2035,2101,5),map(str,np.arange(2035,2101,5)),size=8,
@@ -166,7 +169,7 @@ for rr in range(len(variqall)):
         plt.yticks(np.arange(0,testingPred.shape[0],1),[],size=9,
                    color='w')
     else:
-        plt.yticks(np.arange(0,testingPred.shape[0],1),[r'\textbf{SAI}',r'\textbf{SSP2-4.5}'],size=9,
+        plt.yticks(np.arange(0,testingPred.shape[0],1),[r'\textbf{SAI-1.5}',r'\textbf{SSP2-4.5}'],size=9,
                    color='k')
     
     plt.xlim([2035,2070])   
@@ -174,4 +177,4 @@ for rr in range(len(variqall)):
 plt.tight_layout()
 plt.subplots_adjust(hspace=1.5)
 
-plt.savefig(directoryfigure + 'Predictions_DetectSAI_REGIONS_TREFHT-PRECT.png',dpi=300)
+plt.savefig(directoryfigure + 'Predictions_DetectSAI_REGIONS_TREFHT-PRECT.png',dpi=600)

@@ -201,7 +201,7 @@ limits = [np.arange(-0.4,0.41,0.01),np.arange(-0.4,0.41,0.01),np.arange(-0.6,0.6
           np.arange(-0.4,0.41,0.01),np.arange(-0.4,0.41,0.01),np.arange(-0.6,0.61,0.01)]
 barlims = [np.round(np.arange(-0.4,0.41,0.4),2),np.round(np.arange(-0.4,0.41,0.4),2),np.round(np.arange(-0.6,0.61,0.6),2),
           np.round(np.arange(-0.4,0.41,0.4),2),np.round(np.arange(-0.4,0.41,0.4),2),np.round(np.arange(-0.6,0.61,0.6),2)]
-titles = ['SAI','SSP2-4.5','SAI minus SSP2-4.5']
+titles = ['SAI-1.5','SSP2-4.5','SAI-1.5 minus SSP2-4.5']
 
 ###############################################################################
 ###############################################################################
@@ -288,7 +288,7 @@ for i in range(len(plotvar)):
 cbar_ax = fig.add_axes([0.177,0.083,0.33,0.026])                
 cbar = fig.colorbar(cs1,cax=cbar_ax,orientation='horizontal',
                     extend='both',extendfrac=0.07,drawedges=False)
-cbar.set_label(r'\textbf{PRECT [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
+cbar.set_label(r'\textbf{Precipitation [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
 cbar.set_ticks(barlims[0])
 cbar.set_ticklabels(list(map(str,barlims[0])))
 cbar.ax.tick_params(axis='x', size=.01,labelsize=7)
@@ -297,7 +297,7 @@ cbar.outline.set_edgecolor('dimgrey')
 cbar_ax2 = fig.add_axes([0.7655,0.083,0.11,0.026])                
 cbar2 = fig.colorbar(cs2,cax=cbar_ax2,orientation='horizontal',
                     extend='both',extendfrac=0.07,drawedges=False)
-cbar2.set_label(r'\textbf{DIFFERENCE -- PRECT [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
+cbar2.set_label(r'\textbf{DIFFERENCE -- Precipitation [mm/day/decade]}',fontsize=9,color='dimgrey',labelpad=1.4)  
 cbar2.set_ticks(barlims[-1])
 cbar2.set_ticklabels(list(map(str,barlims[-1])))
 cbar2.ax.tick_params(axis='x', size=.01,labelsize=5)
@@ -305,4 +305,4 @@ cbar2.outline.set_edgecolor('dimgrey')
     
 plt.tight_layout()
 plt.subplots_adjust(hspace=-0.3)
-plt.savefig(directoryfigure + 'Map_TemporalTrends_PRECT.png',dpi=300)
+plt.savefig(directoryfigure + 'Map_TemporalTrends_PRECT.png',dpi=600)

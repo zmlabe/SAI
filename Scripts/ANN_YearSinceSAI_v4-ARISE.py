@@ -53,6 +53,7 @@ ridge_penaltyq = np.genfromtxt(directoryModels + 'L2_ANN_YearsSinceSAI_%s_corr_%
 labels = ['Globe','NH','SH','Arctic','Antarctic','Tropics','SE Asia','North Africa','Amazon']
 timeper = 'historical'
 window = 0
+sys.exit()
 ###############################################################################
 ###############################################################################
 land_only = True

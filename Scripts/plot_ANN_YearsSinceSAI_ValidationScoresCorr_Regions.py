@@ -59,9 +59,12 @@ letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m"]
 ridge_penaltyq = [0.01,0.1,0.25,0.5,0.75,1,1.5,2,3,5,10]
 reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','NorthAfrica','Amazon']
 NCOMBOS = 20
-variq = 'PRECT'
+variq = 'TREFHT'
+variqn = 'Temperature'
 # ANNn = 'Hiddens_10x10'
 # ANNname = '2-LAYERS$_{10}$'
+# ANNn = 'Hiddens_10x10x10'
+# ANNname = '3-LAYERS$_{10}$'
 # ANNn = 'Hiddens_5x5'
 # ANNname = '2-LAYERS$_{5}$'
 ANNn = 'Hiddens_5'
@@ -142,14 +145,21 @@ for plo in range(len(labels)):
     # ax.yaxis.grid(zorder=2,color='darkgrey',alpha=0.7,clip_on=False,linewidth=0.5)
     ax.xaxis.grid(zorder=2,color='darkgrey',alpha=1,clip_on=False,linewidth=1)
     
+    plt.axhline(y=0,color='dimgrey',linestyle='-',linewidth=2,zorder=0)
+    
     def set_box_color(bp, color):
-        plt.setp(bp['boxes'],color='w')
-        plt.setp(bp['whiskers'], color='w',linewidth=1.5)
-        plt.setp(bp['caps'], color='w',alpha=0)
+        plt.setp(bp['boxes'],color='lightcoral',alpha=1)
+        plt.setp(bp['whiskers'], color='lightcoral',linewidth=1.5,alpha=1)
+        plt.setp(bp['caps'], color='lightcoral',alpha=0)
         plt.setp(bp['medians'], color=color,linewidth=2)
     
+    ### Mask nans for boxplot
+    datamask = plotdata.copy()
+    mask = ~np.isnan(datamask)
+    filtered_data = [d[m] for d, m in zip(datamask.T, mask.T)]
+    
     positionsq = np.arange(len(ridge_penaltyq))
-    bpl = plt.boxplot(plotdata,positions=positionsq,widths=0.6,
+    bpl = plt.boxplot(filtered_data,positions=positionsq,widths=0.6,
                       patch_artist=True,sym='',zorder=1)
     
     # Modify boxes
@@ -160,7 +170,7 @@ for plo in range(len(labels)):
     for i in range(plotdata.shape[1]):
         y = plotdata[:,i]
         x = np.random.normal(positionsq[i], 0.04, size=len(y))
-        plt.plot(x, y,color='teal', alpha=0.8,zorder=10,marker='.',linewidth=0,markersize=5,markeredgewidth=0,clip_on=False)
+        plt.plot(x, y,color='teal', alpha=0.6,zorder=10,marker='.',linewidth=0,markersize=3,markeredgewidth=0,clip_on=False)
      
     if any([plo==0,plo==3,plo==6]):
         plt.yticks(np.arange(-1,1.1,0.2),list(map(str,np.round(np.arange(-1,1.1,0.2),2))),
@@ -185,7 +195,7 @@ for plo in range(len(labels)):
         ax.axes.xaxis.set_ticklabels([])
         
     if plo == 7:
-        plt.xlabel(r'\textbf{Ridge Penalty (L$_{2}$) -- %s}' % variq,color='k',fontsize=6)
+        plt.xlabel(r'\textbf{Ridge Penalty (L$_{2}$) -- %s}' % variqn,color='k',fontsize=6)
         
     plt.xlim([-0.5,len(ridge_penaltyq)-0.5])
     
@@ -242,8 +252,8 @@ for i in range(len(reg_nameq)):
     testindices_model[i,:] = testindices[i,whichL2[i],whichSeed[i]]
     valindices_model[i,:] = valindices[i,whichL2[i],whichSeed[i]]
     
-### Save output
-directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI_ActualModel/'
-np.savetxt(directoryModels + 'L2_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),l2_model)
-np.savetxt(directoryModels + 'SegSeed_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),segSeed_model)
-np.savetxt(directoryModels + 'NetSeed_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),netSeed_model)
+# ### Save output
+# directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/YearsSinceSAI_ActualModel/'
+# np.savetxt(directoryModels + 'L2_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),l2_model)
+# np.savetxt(directoryModels + 'SegSeed_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),segSeed_model)
+# np.savetxt(directoryModels + 'NetSeed_ANN_YearsSinceSAI_%s_corr_%s.txt' % (variq,ANNn),netSeed_model)

@@ -47,7 +47,7 @@ directoryModels = '/Users/zlabe/Documents/Research/SolarIntervention/Data/detect
 modelGCMs = ['ARISE','WACCM']
 datasetsingle = ['all_saiComparison']
 seasons = ['annual']
-variq = 'TREFHT'
+variq = 'PRECT'
 timeper = 'historical'
 window = 0
 ###############################################################################
@@ -56,6 +56,7 @@ reg_nameq = ['Globe','NH','SH','Arctic','Antarctic','narrowTropics','SEAsia','No
 ridge_penaltyq = np.genfromtxt(directoryModels + 'L2_LogReg_DetectSAI_%s.txt' % variq,unpack=True)
 # random_segment_seedq = np.genfromtxt(directoryModels + 'SegSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
 # random_network_seedq = np.genfromtxt(directoryModels + 'NetSeed_LogReg_DetectSAI_%s.txt' % variq,unpack=True).astype(int)
+sys.exit()
 ###############################################################################
 ###############################################################################
 land_only = True
