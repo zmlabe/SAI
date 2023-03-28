@@ -4,7 +4,7 @@ Using explainable AI to identify regional climate signals in response to stratos
 ###### Under construction... ```[Python 3.7]```
 
 ## Project
-AI Methods for Solar Radiation Management Research (DARPA‐PA‐21‐04‐02) - https://github.com/eabarnes1010/actm-sai-csu
+Check out AI Methods for Solar Radiation Management Research (DARPA‐PA‐21‐04‐02) - https://github.com/eabarnes1010/actm-sai-csu
 
 ## Contact
 Zachary Labe - [Research Website](https://zacklabe.com/) - [@ZLabe](https://twitter.com/ZLabe)
@@ -23,7 +23,7 @@ Zachary Labe - [Research Website](https://zacklabe.com/) - [@ZLabe](https://twit
     + Gettelman, A., Mills, M. J., Kinnison, D. E., Garcia, R. R., Smith, A. K., Marsh, D. R., ... & Randel, W. J. (2019). The whole atmosphere community climate model version 6 (WACCM6). Journal of Geophysical Research: Atmospheres, 124(23), 12380-12403., doi:10.1029/2019JD030943 [[PUBLICATION]](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019JD030943)
 
 ## Publications
-+ **[1]** **Labe, Z.M.**, E.A. Barnes, and J.W. Hurrell (2023). Identifying the regional emergence of climate patterns in a simulation of stratospheric aerosol injection. (*submitted*) [[PREPRINT]](https://doi.org/10.31223/X5394Z)
++ **[1]** **Labe, Z.M.**, E.A. Barnes, and J.W. Hurrell (2023). Identifying the regional emergence of climate patterns in a simulation of stratospheric aerosol injection. (*accepted*) [[PREPRINT]](https://doi.org/10.31223/X5394Z)
 
 ## Conferences
 + **[1]** **Labe, Z.M.**, E.A. Barnes, and J.W. Hurrell. Detecting the regional emergence of climate signals with machine learning in a set of stratospheric aerosol injection simulations, *2022 American Geophysical Union Annual Meeting*, Chicago, IL (Dec 2022) [[ABSTRACT]](https://agu.confex.com/agu/fm22/meetingapp.cgi/Paper/1110391)[[POSTER]](https://zacklabe.files.wordpress.com/2022/12/labebarneshurrell_agu_sai2022_poster.pdf)
