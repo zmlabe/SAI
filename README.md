@@ -1,4 +1,4 @@
-# SAI
+# SAI [![DOI](https://zenodo.org/badge/467563760.svg)](https://zenodo.org/badge/latestdoi/467563760)
 Using explainable AI to identify regional climate signals in response to stratospheric aerosol injection
 
 ###### Under construction... ```[Python 3.7]```
